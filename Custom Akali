@@ -40,5 +40,5 @@ OnTick(function ()
 	if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 30 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + GetBonusAD(myHero) * 0.6) then
 	CastSkillShot(enemy , _E)
 	            end
-			   end
-		end
+              end
+	end
