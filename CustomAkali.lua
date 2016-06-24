@@ -52,11 +52,6 @@ OnTick(function ()
 				
 	                if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
 		           CastTargetSpell(target, _R)
-			end
-			if AkaliMenu.Combo.W:Value() and Ready(_W) then
-                		if GetPercentHp(myhero) < 20 then
-                		   CastTargetSpell(_W, myHeroPOS)
-                		end
                 	end
 		end	
 	
