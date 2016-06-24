@@ -23,7 +23,7 @@ OnTick(function ()
 				
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 	                   local targetPos = GetOrigin(target)
-		           CastSpell(_E, targetPos)
+		           CastSpell(_E , targetPos)
 			end
 				
 	                if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
