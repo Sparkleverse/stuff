@@ -12,6 +12,8 @@ function AutoUpdate(data)
     end
 end
 
+GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/Custom%20Akali.lua", AutoUpdate)
+
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
