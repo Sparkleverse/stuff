@@ -11,7 +11,6 @@ function AutoUpdate(data)
             PrintChat("No updates found!")
         end
     end
-end     
 
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
