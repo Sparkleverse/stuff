@@ -7,10 +7,11 @@ function AutoUpdate(data)
         PrintChat("New version found! " .. data)
         PrintChat("Downloading update, please wait...")
         DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/Custom%20Akali.lua", SCRIPT_PATH .. "CustomAkali.lua", function() PrintChat("Update Complete, please 2x F6!") return end)
-    else
-        PrintChat("No updates found!")
+        else
+            PrintChat("No updates found!")
+        end
     end
-end
+end     
 
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
