@@ -19,7 +19,7 @@ AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 AkaliMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
 AkaliMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7, function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
 
-function AutoUpdate()
+function AutoUpdate(data)
 	if tonumber(data) > tonumber(ver) then
 		print("There is a newer version, please wait for download to complete")
 		DownloadFileAsync('https://raw.githubusercontent.com/Toshibiotro/stuff/master/Custom%20Akali.lua', SCRIPT_PATH .. 'CustomAkali.lua', function() Print("Update Completed, please 2x F6") return end)	
@@ -45,7 +45,7 @@ OnTick(function ()
 				
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 	                   local targetPos = GetOrigin(target)
-		           CastSpell(_E , targetPos)
+		           CastSpell(_E)
 			end
 				
 	                if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
@@ -69,7 +69,7 @@ OnTick(function ()
 		if AkaliMenu.KillSteal.KSE:Value() and Ready(_E) and ValidTarget(enemy, 325) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 30 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
 	                   local targetPos = GetOrigin(target)
-	                   CastSpell(_E , targetPos)
+	                   CastSpell(_E)
                 	end
 		end
 	end	
