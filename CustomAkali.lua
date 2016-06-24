@@ -54,7 +54,8 @@ OnTick(function ()
 		
 		        if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
 			   CastTargetSpell(target, _Q)
-                        end
+                	end
+                
          	if not IOW.isWindingUp then	
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 		           CastSpell(_E)
@@ -74,12 +75,14 @@ OnTick(function ()
 					if AkaliMenu.LaneClear.Q:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
 				   	   CastTargetSpell(closeminion, _Q)
 					end
-				
-					if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
-				           CastSpell(_E)
-				        end
+					
+					if not IOW.isWindingUp then
+						if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
+				           	   CastSpell(_E)
+				        	end
+					end
 				end
-			end	
+			end
 	
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if AkaliMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 600) then
