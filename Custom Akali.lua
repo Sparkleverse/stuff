@@ -44,13 +44,7 @@ OnTick(function ()
 		        if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
 			   CastTargetSpell(target, _Q)
                         end
-                
-                	if AkaliMenu.Combo.W:Value() and Ready(_W) then
-                		if GetCurrentHp(myhero) < 200 then
-                		   CastTargetSpell(_W, myHeroPOS)
-                		end
-                	end	
-				
+         
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 	                   local targetPos = GetOrigin(target)
 		           CastSpell(_E)
@@ -59,6 +53,11 @@ OnTick(function ()
 	                if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
 		           CastTargetSpell(target, _R)
 			end
+			if AkaliMenu.Combo.W:Value() and Ready(_W) then
+                		if GetCurrentHp(myhero) < 200 then
+                		   CastTargetSpell(_W, myHeroPOS)
+                		end
+                	end
 		end	
 	
 	for _, enemy in pairs(GetEnemyHeroes()) do
