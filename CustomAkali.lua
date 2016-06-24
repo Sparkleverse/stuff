@@ -15,7 +15,6 @@ end
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
-AkaliMenu.Combo:Boolean("W", "Use W", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
 
@@ -28,6 +27,10 @@ AkaliMenu:SubMenu("Misc", "Misc")
 AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel", true)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
+
+local skinMeta       = {["Akali"] = {"Nurse", "Blood Moon", "Silverfang", "Headhunter", "Stinger", "Crimson", "All-Star"}} --fix these
+AkaliMenu.misc:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
+AkaliMenu.misc.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
 OnTick(function ()
 
