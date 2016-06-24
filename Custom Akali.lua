@@ -5,15 +5,30 @@ AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
+
 AkaliMenu:SubMenu("KillSteal", "KillSteal")
 AkaliMenu.KillSteal:Boolean("KSQ", "KillSteal with Q", true)
 AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
 AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
 
+AkaliMenu:SubMenu("Misc" "Misc")
+AkaliMenu.Misc:Boolean("UseHTGB", "Use Hextech Gunblade", true)
+AkaliMenu.Misc:Boolean("AutoLevel", true)
+
+RumbleMenu:SubMenu("SkinChanger", "SkinChanger")
+RumbleMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
+RumbleMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7 function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
+
 OnTick(function ()
 
         local target = GetCurrentTarget()
-		
+        if AkaliMenu.Misc.AutoLevel:Value() then
+                   spellorder = {_Q, _E, _Q, _W, _Q, _R, _Q, _Q, _E, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
+		if GetLevelPoints(myHero) > 0 then
+	           LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
+	        end
+	end        
+	     
 		if IOW:Mode() == "Combo" then
 		
 		        if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
@@ -52,4 +67,12 @@ OnTick(function ()
 	end	
 end)
 
+local function SkinChanger()
+	if AkaliMenu.Skin.UseSkinChanger:Value() then
+		if SetDCP >= 0  and SetDCP ~= GlobalSkin then
+			HeroSkinChanger(myHero, SetDCP)
+			GlobalSkin = SetDCP
+		end
+        end
+end
 print("Thank You For Using Custom Akali, Have Fun :D")
