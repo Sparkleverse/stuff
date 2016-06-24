@@ -17,6 +17,7 @@ GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/Cu
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
+AkaliMenu.Combo:Boolean("W", "Use W", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
 
@@ -44,7 +45,11 @@ OnTick(function ()
 		
 		        if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
 			   CastTargetSpell(target, _Q)
-	                end
+                        end
+                
+                	if AkaliMenu.Combo.W:Value() and Ready(_W) then
+                		if GetCurrentHp(myhero) < 20% then
+                		   CastTargetSpell(_W, myHeroPOS)	
 				
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 	                   local targetPos = GetOrigin(target)
