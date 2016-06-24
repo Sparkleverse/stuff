@@ -31,7 +31,7 @@ AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 OnTick(function ()
 
         local target = GetCurrentTarget()
-        if AkaliMenu.Misc.UseAutoLevel:Value() then
+        if AkaliMenu.Misc.AutoLevel:Value() then
                    spellorder = {_Q, _E, _Q, _W, _Q, _R, _Q, _E, _Q, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
 		if GetLevelPoints(myHero) > 0 then
 	           LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
