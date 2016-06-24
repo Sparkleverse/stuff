@@ -11,7 +11,7 @@ AkaliMenu.KillSteal:Boolean("KSQ", "KillSteal with Q", true)
 AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
 AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
 
-AkaliMenu:SubMenu("Misc" "Misc")
+AkaliMenu:SubMenu("Misc", "Misc")
 AkaliMenu.Misc:Boolean("UseHTGB", "Use Hextech Gunblade", true)
 AkaliMenu.Misc:Boolean("AutoLevel", true)
 
