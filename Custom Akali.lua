@@ -24,7 +24,7 @@ AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
 AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
 
 AkaliMenu:SubMenu("Misc", "Misc")
-AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel" true)
+AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel", true)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
