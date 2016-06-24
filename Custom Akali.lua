@@ -3,7 +3,6 @@ if GetObjectName(GetMyHero()) ~= "Akali" then return end
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
-AkaliMenu.Combo:Boolean("W", "Use W", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
 AkaliMenu:SubMenu("KillSteal", "KillSteal")
