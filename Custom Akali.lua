@@ -27,8 +27,6 @@ AkaliMenu:SubMenu("Misc", "Misc")
 AkaliMenu.Misc:Boolean("AutoLevel", true)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
-AkaliMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
-AkaliMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7, function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
 
 OnTick(function ()
 
@@ -78,12 +76,4 @@ OnTick(function ()
 	end	
 end)
 
-local function SkinChanger()
-	if AkaliMenu.Skin.UseSkinChanger:Value() then
-		if SetDCP >= 0  and SetDCP ~= GlobalSkin then
-			HeroSkinChanger(myHero, SetDCP)
-			GlobalSkin = SetDCP
-		end
-        end
-end
 print("Thank You For Using Custom Akali, Have Fun :D")
