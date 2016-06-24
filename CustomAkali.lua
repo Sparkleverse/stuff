@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
-local ver = "0.02"
+local ver = "0.03"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -31,6 +31,8 @@ AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
 
 AkaliMenu:SubMenu("Misc", "Misc")
 AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel", true)
+AkaliMenu.Misc:Boolean("AutoW", "UseAutoW", true)
+AkaliMenu.Misc:Slider("AutoWP","Percent Health for Auto W",20,5,90,2)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
@@ -94,7 +96,18 @@ OnTick(function ()
 	                   CastSpell(_E)
                 	end
 		end
-	end	
+	end
+
+	for _, enemy in pairs(GetEnemyHeroes()) do		
+		if AkaliMenu.Misc.AutoW:Value() and Ready(_W) and EnemiesAround(myHeroPos(), 1000) >= 2 and GetPercentHP(myHero) <= AkaliMenu.Misc.AutoWP:Value() then
+		   CastSkillShot(_W, myHeroPos())
+		        else
+			if AkaliMenu.Misc.AutoW:Value() and Ready(_W) and EnemiesAround(myHeroPos(), 1000) >= 1 and GetPercentHP(myHero) <= AkaliMenu.Misc.AutoWP:Value() then
+				   CastSkillShot(_W, myHeroPos())
+			end
+		end
+	end		
+
 end)
 
 print("Thank You For Using Custom Akali, Have Fun :D")
