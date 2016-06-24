@@ -49,7 +49,6 @@ OnTick(function ()
                         end
          
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
-	                   local targetPos = GetOrigin(target)
 		           CastSpell(_E)
 			end
 				
@@ -73,7 +72,6 @@ OnTick(function ()
 	
 		if AkaliMenu.KillSteal.KSE:Value() and Ready(_E) and ValidTarget(enemy, 325) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 30 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
-	                   local targetPos = GetOrigin(target)
 	                   CastSpell(_E)
                 	end
 		end
