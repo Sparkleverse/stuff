@@ -54,7 +54,7 @@ OnTick(function ()
 		           CastTargetSpell(target, _R)
 			end
 			if AkaliMenu.Combo.W:Value() and Ready(_W) then
-                		if GetCurrentHp(myhero) < 200 then
+                		if GetPercentHp(myhero) < 20 then
                 		   CastTargetSpell(_W, myHeroPOS)
                 		end
                 	end
