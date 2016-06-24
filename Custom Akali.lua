@@ -21,7 +21,7 @@ RumbleMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5
 
 function AutoUpdate()
 	if tonumber(data) > tonumber(ver) then
-		print("There is a newer version, please wait for download to complete"
+		print("There is a newer version, please wait for download to complete")
 		DownloadFileAsync('https://raw.githubusercontent.com/Toshibiotro/stuff/master/Custom%20Akali.lua', SCRIPT_PATH .. 'CustomAkali.lua', function() Print("Update Completed, please 2x F6") return end)	
 		else print("No Updates")
 		end
