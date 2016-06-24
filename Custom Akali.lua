@@ -24,14 +24,14 @@ AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
 AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
 
 AkaliMenu:SubMenu("Misc", "Misc")
-AkaliMenu.Misc:Boolean("AutoLevel", true)
+AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel" true)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
 OnTick(function ()
 
         local target = GetCurrentTarget()
-        if AkaliMenu.Misc.AutoLevel:Value() then
+        if AkaliMenu.Misc.UseAutoLevel:Value() then
                    spellorder = {_Q, _E, _Q, _W, _Q, _R, _Q, _E, _Q, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
 		if GetLevelPoints(myHero) > 0 then
 	           LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
