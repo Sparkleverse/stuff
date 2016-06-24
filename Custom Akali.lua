@@ -19,6 +19,14 @@ RumbleMenu:SubMenu("SkinChanger", "SkinChanger")
 RumbleMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
 RumbleMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7 function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
 
+function AutoUpdate()
+	if tonumber(data) > tonumber(ver) then
+		print("There is a newer version, please wait for download to complete"
+		DownloadFileAsync('https://raw.githubusercontent.com/Toshibiotro/stuff/master/Custom%20Akali.lua', SCRIPT_PATH .. 'CustomAkali.lua', function() Print("Update Completed, please 2x F6") return end)	
+		else print("No Updates")
+		end
+	end
+
 OnTick(function ()
 
         local target = GetCurrentTarget()
