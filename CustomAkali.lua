@@ -29,8 +29,8 @@ AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel", true)
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
 local skinMeta       = {["Akali"] = {"Nurse", "Blood Moon", "Silverfang", "Headhunter", "Stinger", "Crimson", "All-Star"}} --fix these
-AkaliMenu.misc:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
-AkaliMenu.misc.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
+AkaliMenu.Misc:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
+AkaliMenu.Misc.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
 OnTick(function ()
 
