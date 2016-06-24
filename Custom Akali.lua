@@ -48,8 +48,10 @@ OnTick(function ()
                         end
                 
                 	if AkaliMenu.Combo.W:Value() and Ready(_W) then
-                		if GetCurrentHp(myhero) < 20% then
-                		   CastTargetSpell(_W, myHeroPOS)	
+                		if GetCurrentHp(myhero) < 200 then
+                		   CastTargetSpell(_W, myHeroPOS)
+                		end
+                	end	
 				
                         if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
 	                   local targetPos = GetOrigin(target)
