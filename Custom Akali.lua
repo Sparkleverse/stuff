@@ -17,7 +17,7 @@ AkaliMenu.Misc:Boolean("AutoLevel", true)
 
 RumbleMenu:SubMenu("SkinChanger", "SkinChanger")
 RumbleMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
-RumbleMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7 function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
+RumbleMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 0, 1, 2, 3, 4, 5, 6, 7, function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
 
 function AutoUpdate()
 	if tonumber(data) > tonumber(ver) then
