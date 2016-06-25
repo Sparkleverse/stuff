@@ -57,9 +57,9 @@ OnTick(function ()
 	if IOW:Mode() == "Combo" then
 		
 		if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then
-		        	if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
+			if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
 			           CastTargetSpell(target, _Q)
-        			end
+        		end
         	end
 
         	if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then        
