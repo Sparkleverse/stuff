@@ -19,7 +19,8 @@ AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
-AkaliMenu.Combo:Boolean("HTGB", "Use Items", true)
+AkaliMenu.Combo:Boolean("HTGB", "Use Gunblade", true)
+AkaliMenu.Combo:Boolean("BWC", "Use Bilgewater Cutlass", true)
 AkaliMenu.Combo:Slider("HPHTGB", "Target's Hp to Use Items",85,5,100,2)
 AkaliMenu.Combo:Slider("ComboEnergyManager", "Min Energy to Use Combo",0,0,200,10)
 
@@ -79,6 +80,12 @@ OnTick(function ()
 		end	
 	
 		if AkaliMenu.Combo.HTGB:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(target, 700) then
+			if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
+			   CastOffensiveItems(target)
+			end
+		end
+	
+		if AkaliMenu.Combo.BWC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(target, 550) then
 			if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
 			   CastOffensiveItems(target)
 			end
