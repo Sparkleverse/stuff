@@ -33,6 +33,8 @@ AkaliMenu:SubMenu("KillSteal", "KillSteal")
 AkaliMenu.KillSteal:Boolean("KSQ", "KillSteal with Q", true)
 AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
 AkaliMenu.KillSteal:Boolean("KSR", "KillSteal with R", true)
+AkaliMenu.KillSteal:Boolean("KSG", "KillSteal with Gunblade", true)
+AkaliMenu.KillSteal:Boolean("KSC", "KillSteal with Cutlass", true)
 
 AkaliMenu:SubMenu("Misc", "Misc")
 AkaliMenu.Misc:Boolean("AutoLevel", "UseAutoLevel", true)
@@ -129,6 +131,18 @@ OnTick(function ()
 	                   CastSpell(_E)
                 	end
 		end
+		
+		if AkaliMenu.KillSteal.KSC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(enemy, 550) then
+			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100) then
+			   CastOffensiveItems(enemy)
+			end
+		end
+	
+		if AkaliMenu.KillSteal.KSG:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(enemy, 700) then
+			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 250 + GetBonusAP(myHero) * 0.3) then
+			   CastOffensiveItems(enemy)
+			end
+		end	
 	end
 
 	for _, enemy in pairs(GetEnemyHeroes()) do		
