@@ -20,7 +20,7 @@ AkaliMenu.Combo:Boolean("Q", "Use Q", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
 AkaliMenu.Combo:Boolean("HTGB", "Use Items", true)
-AkaliMenu.Combo:Slider("HPHTGB", "Target's Hp to Use Gunblade",85,5,100,2)
+AkaliMenu.Combo:Slider("HPHTGB", "Target's Hp to Use Items",85,5,100,2)
 AkaliMenu.Combo:Slider("ComboEnergyManager", "Min Energy to Use Combo",0,0,200,10)
 
 AkaliMenu:SubMenu("LaneClear", "LaneClear")
