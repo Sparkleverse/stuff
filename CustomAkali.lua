@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
-local ver = "0.03"
+local ver = "0.04"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -19,10 +19,14 @@ AkaliMenu:SubMenu("Combo", "Combo")
 AkaliMenu.Combo:Boolean("Q", "Use Q", true)
 AkaliMenu.Combo:Boolean("E", "Use E", true)
 AkaliMenu.Combo:Boolean("R", "Use R", true)
+AkaliMenu.Combo:Boolean("HTGB", "Use Items", true)
+AkaliMenu.Combo:Slider("HPHTGB", "Target's Hp to Use Gunblade",85,5,100,2)
+AkaliMenu.Combo:Slider("ComboEnergyManager", "Min Energy to Use Combo",0,0,200,10)
 
 AkaliMenu:SubMenu("LaneClear", "LaneClear")
 AkaliMenu.LaneClear:Boolean("Q", "Use Q", true)
 AkaliMenu.LaneClear:Boolean("E", "Use E", true)
+AkaliMenu.LaneClear:Slider("EnergyManager", "Min Energy to LaneClear",100,0,200,10)
 
 AkaliMenu:SubMenu("KillSteal", "KillSteal")
 AkaliMenu.KillSteal:Boolean("KSQ", "KillSteal with Q", true)
@@ -52,34 +56,50 @@ OnTick(function ()
 	     
 	if IOW:Mode() == "Combo" then
 		
-		        if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
-			   CastTargetSpell(target, _Q)
-                	end
-                
-         	if not IOW.isWindingUp then	
-                        if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
-		           CastSpell(_E)
+		if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then
+		        	if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
+			           CastTargetSpell(target, _Q)
+        			end
+        	end
+
+        	if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then        
+         		if not IOW.isWindingUp then	
+                        	if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
+		                   CastSpell(_E)
+				end
 			end
 		end
 	
-		if not IOW.isWindingUp then		
-	                if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
-		           CastTargetSpell(target, _R)
-                	end
-		end
+		if GetDistance(target, myHero) >= 240 then
+			if not IOW.isWindingUp then		
+	                	if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
+		                   CastTargetSpell(target, _R)
+                		end
+			end
+		end	
+	
+		if AkaliMenu.Combo.HTGB:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(target, 700) then
+			if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
+			   CastOffensiveItems(target)
+			end
+		end	
 	end	
 		
 			if IOW:Mode() == "LaneClear" then
 				
 		        	for _,closeminion in pairs(minionManager.objects) do
-					if AkaliMenu.LaneClear.Q:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
-				   	   CastTargetSpell(closeminion, _Q)
-					end
+		        		if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
+						if AkaliMenu.LaneClear.Q:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
+				   	           CastTargetSpell(closeminion, _Q)
+						end
+					end	
 					
-					if not IOW.isWindingUp then
-						if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
-				           	   CastSpell(_E)
-				        	end
+					if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
+						if not IOW.isWindingUp then
+							if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
+				           	           CastSpell(_E)
+				        		end
+						end
 					end
 				end
 			end
