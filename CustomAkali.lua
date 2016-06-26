@@ -164,7 +164,7 @@ end)
 
 OnProcessSpell(function(unit,spellProc)
 	if unit.isMe and spellProc.name:lower():find("attack") and spellProc.target.isHero then
-		nextAttack = GetTickCount() + spellProc.windUpTime * .001
+		nextAttack = GetTickCount() + spellProc.windUpTime * 1000
 	end
 end)
 
