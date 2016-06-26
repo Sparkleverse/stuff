@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
-local ver = "0.05"
+local ver = "0.06"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -119,6 +119,23 @@ OnTick(function ()
 				if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
 				    CastSpell(_E)
 				end
+			end
+		end
+	end
+
+	if Mix:Mode() == "LastHit" then
+	
+		for _,closeminion in pairs(minionManager.objects) do
+			if AkaliMenu.LastHit.QLH:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
+				if GetCurrentHP(closeminion) < CalcDamage(myHero, closeminion, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
+					CastTargetSpell(closeminion, _Q)
+				end
+			end
+			
+			if AkaliMenu.LastHit.ELH:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
+				if GetCurrentHP(closeminion) < CalcDamage(myHero, closeminion, 0, 5 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
+					CastSpell(_E)
+				end	
 			end
 		end
 	end
