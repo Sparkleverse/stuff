@@ -36,6 +36,10 @@ AkaliMenu.LaneClear:Boolean("Q", "Use Q", true)
 AkaliMenu.LaneClear:Boolean("E", "Use E", true)
 AkaliMenu.LaneClear:Slider("EnergyManager", "Min Energy to LaneClear",100,0,200,10)
 
+AkaliMenu:SubMenu("LastHit","LastHit")
+AkaliMenu.LastHit:Boolean("QLH", "Use Q", true)
+AkaliMenu.LastHit:Boolean("ELH", "Use E", true)
+
 AkaliMenu:SubMenu("KillSteal", "KillSteal")
 AkaliMenu.KillSteal:Boolean("KSQ", "KillSteal with Q", true)
 AkaliMenu.KillSteal:Boolean("KSE", "KillSteal with E", true)
