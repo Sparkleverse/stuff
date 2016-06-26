@@ -73,8 +73,7 @@ OnTick(function ()
 		if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then
 			if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
 					CastTargetSpell(target, _Q)
-  
-        end
+        	end
 
         	if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then        
          		if GetTickCount() > nextAttack then	
@@ -88,7 +87,7 @@ OnTick(function ()
 				if GetTickCount() > nextAttack then	
 					if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
 						CastTargetSpell(target, _R)
-                	end
+                			end
 				end
 			end	
 	
@@ -144,7 +143,7 @@ OnTick(function ()
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if AkaliMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 600) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
-	           	CastTargetSpell(enemy , _Q)
+	           		CastTargetSpell(enemy , _Q)
 			end
 		end
 	
