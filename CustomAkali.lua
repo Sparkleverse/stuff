@@ -143,19 +143,19 @@ OnTick(function ()
 	--Killsteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if AkaliMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 600) then
-			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 35 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
+			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
 	           	CastTargetSpell(enemy , _Q)
 			end
 		end
 	
 		if AkaliMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 700) then
-			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100 + 75 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 0.5) then
+			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 25 + 75 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 0.5) then
 				CastTargetSpell(enemy , _R)
 			end
 		end
 	
 		if AkaliMenu.KillSteal.KSE:Value() and Ready(_E) and ValidTarget(enemy, 325) then
-			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 30 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
+			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 5 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
 				CastSpell(_E)
 			end
 		end
