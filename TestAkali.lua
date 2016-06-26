@@ -53,97 +53,100 @@ AkaliMenu.Misc:Slider("AutoWX", "X Enemies to Cast AutoW",3,1,5,1)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
-local skinMeta       = {["Akali"] = {"Classic", "Stinger", "Crimson", "All-Star", "Nurse", "BloodMoon", "Silverfang", "Headhunter"}}
+local skinMeta = {["Akali"] = {"Classic", "Stinger", "Crimson", "All-Star", "Nurse", "BloodMoon", "Silverfang", "Headhunter"}}
 AkaliMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
 AkaliMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
+local nextAttack = 0
+
 OnTick(function ()
 
-        local target = GetCurrentTarget()
-        if AkaliMenu.Misc.AutoLevel:Value() then
-                   spellorder = {_Q, _E, _Q, _W, _Q, _R, _Q, _E, _Q, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
+	local target = GetCurrentTarget()
+	if AkaliMenu.Misc.AutoLevel:Value() then
+		spellorder = {_Q, _E, _Q, _W, _Q, _R, _Q, _E, _Q, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
 		if GetLevelPoints(myHero) > 0 then
-	           LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
-	        end
+			LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
+		end
 	end        
-	     
+
 	if Mix:Mode() == "Combo" then
 		
 		if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then
 			if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
-			           CastTargetSpell(target, _Q)
-        		end
-        	end
+					CastTargetSpell(target, _Q)
+  
+        end
 
         	if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then        
          		if GetTickCount() > nextAttack then	
-                        	if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
-		                   CastSpell(_E)
-				end
-			end
-		end
-	
-		if GetDistance(target, myHero) >= 240 then
-			if GetTickCount() > nextAttack then	
-	                	if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
-		                   CastTargetSpell(target, _R)
-                		end
-			end
-		end	
-	
-		if AkaliMenu.Combo.HTGB:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(target, 700) then
-			if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
-			   CastOffensiveItems(target)
-			end
-		end
-	
-		if AkaliMenu.Combo.BWC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(target, 550) then
-			if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
-			   CastOffensiveItems(target)
-			end
-		end	
-	end	
-		
-			if Mix:Mode() == "LaneClear" then
-				
-		        	for _,closeminion in pairs(minionManager.objects) do
-		        		if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
-						if AkaliMenu.LaneClear.Q:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
-				   	           CastTargetSpell(closeminion, _Q)
-						end
-					end	
-					
-					if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
-							if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
-				           	           CastSpell(_E)
-				        		end
-						end
+					if AkaliMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 325) then
+						CastSpell(_E)
 					end
 				end
 			end
 	
+			if GetDistance(target, myHero) >= 240 then
+				if GetTickCount() > nextAttack then	
+					if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
+						CastTargetSpell(target, _R)
+                	end
+				end
+			end	
+	
+			if AkaliMenu.Combo.HTGB:Value() and ValidTarget(target, 700) then
+				if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
+					CastOffensiveItems(target)
+				end
+			end
+	
+			if AkaliMenu.Combo.BWC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(target, 550) then
+				if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
+					CastOffensiveItems(target)
+				end
+			end	
+		end	
+	end
+	
+	if Mix:Mode() == "LaneClear" then
+	
+		for _,closeminion in pairs(minionManager.objects) do
+			if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
+				if AkaliMenu.LaneClear.Q:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
+					CastTargetSpell(closeminion, _Q)
+				end
+			end	
+					
+			if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
+				if AkaliMenu.LaneClear.E:Value() and Ready(_E) and ValidTarget(closeminion, 325) then
+				    CastSpell(_E)
+				end
+			end
+		end
+	end
+	
+	--Killsteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if AkaliMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 600) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 35 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
-	           	   CastTargetSpell(enemy , _Q)
-                        end
+	           	CastTargetSpell(enemy , _Q)
+			end
 		end
 	
 		if AkaliMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 700) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100 + 75 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 0.5) then
-	           	   CastTargetSpell(enemy , _R)
-                	end
+				CastTargetSpell(enemy , _R)
+			end
 		end
 	
 		if AkaliMenu.KillSteal.KSE:Value() and Ready(_E) and ValidTarget(enemy, 325) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 30 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6) then
-	                   CastSpell(_E)
-                	end
+				CastSpell(_E)
+			end
 		end
 		
 		if AkaliMenu.KillSteal.KSC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(enemy, 550) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100) then
-			   CastOffensiveItems(enemy)
+				CastOffensiveItems(enemy)
 			end
 		end
 	
@@ -153,21 +156,17 @@ OnTick(function ()
 			end
 		end	
 	end
-
-	for _, enemy in pairs(GetEnemyHeroes()) do		
-		if AkaliMenu.Misc.AutoW:Value() and Ready(_W) and EnemiesAround(myHeroPos(), 1000) >= 1 and GetPercentHP(myHero) <= AkaliMenu.Misc.AutoWP:Value() then
-		   CastSkillShot(_W, myHeroPos())
-		   
-			elseif AkaliMenu.Misc.AutoWE:Value() and Ready(_W) and EnemiesAround(myHeroPos(), 1000) >= AkaliMenu.Misc.AutoWX:Value() then
-			   CastSkillShot(_W, myHeroPos())		
-		end
-	end		
+	
+	--AutoW
+	if AkaliMenu.Misc.AutoW:Value() and Ready(_W) and EnemiesAround(myHeroPos(), 1000) >= 1 and (EnemiesAround(myHeroPos(), 1000) >= AkaliMenu.Misc.AutoWX:Value() or GetPercentHP(myHero) <= AkaliMenu.Misc.AutoWP:Value()) then
+		CastSkillShot(_W, myHeroPos())
+	end
 end)
 
-OnProcessSpell(function(myHero,spellProc)
-   if unit.isMe and spellProc.name:lower():find("attack") and spellProc.target.isHero then
-     nextAttack = GetTickCount() + spellProc.windUpTime * .001
-  end
+OnProcessSpell(function(unit,spellProc)
+	if unit.isMe and spellProc.name:lower():find("attack") and spellProc.target.isHero then
+		nextAttack = GetTickCount() + spellProc.windUpTime * .001
+	end
 end)
 
 print("Thank You For Using Custom Akali, Have Fun :D")
