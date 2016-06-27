@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
-local ver = "0.06"
+local ver = "0.07"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -53,6 +53,15 @@ AkaliMenu.Misc:Boolean("AutoW", "UseAutoW", true)
 AkaliMenu.Misc:Slider("AutoWP", "Percent Health for Auto W",20,5,90,2)
 AkaliMenu.Misc:Boolean("AutoWE", "Use Auto W on X Enemies", true)
 AkaliMenu.Misc:Slider("AutoWX", "X Enemies to Cast AutoW",3,1,5,1)
+
+AkaliMenu:SubMenu("Draw", "Drawings")
+AkaliMenu.Draw:Boolean("DAA", "Draw AA Range", true)
+AkaliMenu.Draw:Boolean("DQ", "Draw Q Range", true)
+AkaliMenu.Draw:Boolean("DW", "Draw W Range", true)
+AkaliMenu.Draw:Boolean("DDW", "Draw W Position", true)
+AkaliMenu.Draw:Boolean("DE", "Draw E Range", true)
+AkaliMenu.Draw:Boolean("DR", "Draw R Range", true)
+AkaliMenu.Draw:Boolean("DrawK", "Draw if Target is Killable", true)
 
 AkaliMenu:SubMenu("SkinChanger", "SkinChanger")
 
@@ -186,6 +195,38 @@ OnProcessSpell(function(unit,spellProc)
 	if unit.isMe and spellProc.name:lower():find("attack") and spellProc.target.isHero then
 		nextAttack = GetTickCount() + spellProc.windUpTime * 1000
 	end
+end)
+
+OnDraw(function(myHero)
+	local pos = GetOrigin(myHero)
+	local mpos = GetMousePos()
+	if AkaliMenu.Draw.DQ:Value() then DrawCircle(pos, 600, 1, 25, GoS.White) end
+	if AkaliMenu.Draw.DAA:Value() then DrawCircle(pos, 125, 1, 25, GoS.Green) end
+	if AkaliMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
+	if AkaliMenu.Draw.DR:Value() then DrawCircle(pos, 700, 1, 25, GoS.Cyan) end
+	if AkaliMenu.Draw.DW:Value() then DrawCircle(pos, 700, 1, 25, GoS.Blue) end
+	if AkaliMenu.Draw.DDW:Value() then DrawCircle(mpos, 400, 1, 25, GoS.Red) end
+end)
+
+OnDraw(function()
+	for _, enemy in pairs(GetEnemyHeroes()) do
+		local epos = GetOrigin(enemy)
+		local drawpos = WorldToScreen(1,epos.x, epos.y, epos.z)
+		local QDamage = CalcDamage(myHero, enemy, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4)
+		local QPDamage = CalcDamage(myHero, enemy, 0, 20 + 25 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.5)
+		local EDamage = CalcDamage(myHero, enemy, 0, 5 + 25 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.4 + (myHero.totalDamage) * 0.6)
+		local RDamage = CalcDamage(myHero, enemy, 0, 25 + 75 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 0.5)
+		local HTGBDamage = CalcDamage(myHero, enemy, 0, 250 + GetBonusAP(myHero) * 0.3)
+		if AkaliMenu.Draw.DrawK:Value() then
+			if enemy.valid then
+				if GetCurrentHP(enemy) < QDamage + QPDamage + EDamage + (RDamage * 3) + HTGBDamage then
+					DrawText("Killable", 30, drawpos.x-60, drawpos.y, GoS.White)
+					else
+					DrawText("Not Killable", 30, drawpos.x-60, drawpos.y, GoS.White)
+				end
+			end
+		end
+	end		
 end)
 
 print("Thank You For Using Custom Akali, Have Fun :D")
