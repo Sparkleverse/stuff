@@ -96,7 +96,7 @@ OnTick(function ()
 				end
 			end
 	
-			if GetDistance(target, myHero) >= 240 then
+			if GetDistance(target, myHero) >= 325 or GetCurrentMana(myHero) < 40 then
 				if GetTickCount() > nextAttack then	
 					if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
 						CastTargetSpell(target, _R)
