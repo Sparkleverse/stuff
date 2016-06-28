@@ -2,7 +2,7 @@ if GetObjectName(GetMyHero()) ~= "Malphite" then return end
 
 local ver = "0.01"
 
-require("openpredict")
+require("OpenPredict")
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
