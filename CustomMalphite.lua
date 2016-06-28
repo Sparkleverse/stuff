@@ -99,7 +99,7 @@ OnTick(function ()
 			end
 		end
 		
-		if MalphiteMenu.Combo.CE:Value() and Ready(_E) and ValidTarget(target, 200) then
+		if MalphiteMenu.Combo.CE:Value() and Ready(_E) and ValidTarget(target, 400) then
 			if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana then
 				if GetTickCount() > nextAttack then	
 					CastSpell(_E)
@@ -145,7 +145,7 @@ OnTick(function ()
 			end
 		end	
 
-		if MalphiteMenu.Harass.HE:Value() and Ready(_E) and ValidTarget(closeminion, 200) then
+		if MalphiteMenu.Harass.HE:Value() and Ready(_E) and ValidTarget(closeminion, 400) then
 			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana then
 				if GetTickCount() > nextAttack then	
 					CastSpell(_E)
@@ -169,7 +169,7 @@ OnTick(function ()
 				end
 			end
 					
-			if MalphiteMenu.LaneClear.LCE:Value() and Ready(_E) and ValidTarget(closeminion, 200) and MinionsAround(myHero, 200) > 1 then
+			if MalphiteMenu.LaneClear.LCE:Value() and Ready(_E) and ValidTarget(closeminion, 400) and MinionsAround(myHero, 400) > 1 then
 				if MalphiteMenu.LaneClear.MMLC:Value() <= GetPercentMana then
 					CastSpell(_E)
 				end
@@ -181,13 +181,15 @@ OnTick(function ()
 		for _,closeminion in pairs(minionManager.objects) do
 			if MalphiteMenu.LastHit.LHQ:Value() and Ready(_Q) and ValidTarget(closeminion, 625) then 
 				if MalphiteMenu.LastHit.MMLH:Value() <= GetPercentMana then
-					if QDmg(closeminion) >= GetCurrentHP(closeminion) then
-						CastTargetSpell(closeminion, _Q)
-					end
-				end		
+					if GetDistance(closeminion, myHero) > 125 then	
+						if QDmg(closeminion) >= GetCurrentHP(closeminion) then
+							CastTargetSpell(closeminion, _Q)
+						end
+					end		
+				end
 			end
 
-			if MalphiteMenu.LastHit.LHE:Value() and Ready(_E) and ValidTarget(closeminion, 200) then
+			if MalphiteMenu.LastHit.LHE:Value() and Ready(_E) and ValidTarget(closeminion, 400) then
 				if MalphiteMenu.LastHit.MMLH:Value() <= GetPercentMana then
 					if EDmg(closeminion) >= GetCurrentHP(closeminion) then
 						CastSpell(_E)
