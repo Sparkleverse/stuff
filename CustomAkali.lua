@@ -169,15 +169,17 @@ OnTick(function ()
 	--AutoLastHit
 	for _,closeminion in pairs(minionManager.objects) do
 		if not KeyIsDown(32) then
-			if GetCurrentMana(myHero) > AkaliMenu.LastHit.ALHEnergyManager:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
-				if GetTickCount() > nextAttack then
-					if GetCurrentHP(closeminion) < CalcDamage(myHero, closeminion, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
-						CastTargetSpell(closeminion, _Q)
+			if AkaliMenu.LastHit.ALHQ:Value() then	
+				if GetCurrentMana(myHero) > AkaliMenu.LastHit.ALHEnergyManager:Value() and Ready(_Q) and ValidTarget(closeminion, 600) then
+					if GetTickCount() > nextAttack then
+						if GetCurrentHP(closeminion) < CalcDamage(myHero, closeminion, 0, 15 + 20 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.4) then
+							CastTargetSpell(closeminion, _Q)
+						end
 					end
 				end
 			end
 		end
-	end	
+	end
 	
 	--Killsteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
