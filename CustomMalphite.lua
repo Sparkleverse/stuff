@@ -61,15 +61,16 @@ local skinMeta = {["Malphite"] = {"Classic", "Shamrock", "Coral-Reef", "Marble",
 MalphiteMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
 MalphiteMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
-local QDmg = CalcDamage(0, 20 + 50 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.6)
-local EDmg = CalcDamage(0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + GetArmor(myHero) * 0.3)
-local RDmg = CalcDamage(0, 100 + 100 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero))
-local RStats = {delay = 50, range = 1000, radius = 300, speed = 1835}
-local GetPercentMana = (GetCurrentMana(myHero) / GetMaxMana(myHero)) * 100
 
 OnTick(function ()
-	
+
+	local QDmg = CalcDamage(myHero, enemy, 0, 20 + 50 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.6)
+	local EDmg = CalcDamage(myHero, enemy, 0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + (GetArmor(myHero) * 0.3))
+	local RDmg = CalcDamage(myHero, enemy, 0, 100 + 100 * GetCastLevel(myHero,_R) + GetBonusAP(myHero))
+	local RStats = {delay = 50, range = 1000, radius = 300, speed = 1835}
+	local GetPercentMana = (GetCurrentMana(myHero) / GetMaxMana(myHero)) * 100
 	local target = GetCurrentTarget()
+	
 	if MalphiteMenu.Misc.AutoLevel:Value() then
 		spellorder = {_E, _Q, _W, _E, _E, _R, _E, _Q, _E, _Q, _R, _Q, _Q, _W, _W, _R, _W, _W}	
 		if GetLevelPoints(myHero) > 0 then
