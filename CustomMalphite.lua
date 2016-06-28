@@ -79,7 +79,7 @@ function RDmg(unit) return CalcDamage(myHero, unit, 0, 100 + 100 * GetCastLevel(
 
 OnTick(function ()
 	
-	
+	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local RStats = {delay = 0.050, range = 1000, radius = 300, speed = 1500 + GetMoveSpeed(myHero)}
 	local GetPercentMana = (GetCurrentMana(myHero) / GetMaxMana(myHero)) * 100
 	local target = GetCurrentTarget()
@@ -235,18 +235,18 @@ OnTick(function ()
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if GetCastName(myHero, SUMMONER_1):lower():find("summonerdot") then
 			if MalphiteMenu.Misc.AutoI:Value() and Ready(SUMMONER_1) and ValidTarget(enemy, 600) then
-				local IDamage = (50 + (20 * GetLevel(myHero)))
 				if GetCurrentHP(enemy) < IDamage then
 					CastTargetSpell(enemy, SUMMONER_1)
-					elseif GetCastName(myHero, SUMMONER_2):lower():find("summonerdot") then
-						if MalphiteMenu.Misc.AutoI:Value() and Ready(SUMMONER_2) and ValidTarget(enemy, 600) then
-							if GetCurrentHP(enemy) < IDamage then
-								CastTargetSpell(enemy, SUMMONER_2)
-							end
-						end
-					end
 				end
-			end	
+			end
+		end
+	
+		if GetCastName(myHero, SUMMONER_2):lower():find("summonerdot") then
+			if MalphiteMenu.Misc.AutoI:Value() and Ready(SUMMONER_2) and ValidTarget(enemy, 600) then
+				if GetCurrentHP(enemy) < IDamage then
+					CastTargetSpell(enemy, SUMMONER_2)
+				end
+			end
 		end
 	end
 end)
