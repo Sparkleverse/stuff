@@ -286,11 +286,11 @@ OnProcessSpell(function(unit,spellProc)
 		nextAttack = GetTickCount() + spellProc.windUpTime * 1000
 	end
 	
-	if unit.isMe and spellProc.name:lower():find("SeismicShard") and spellProc.target.isHero then
+	if unit.isMe and spellProc.name:lower():find("seismicshard") and spellProc.target.isHero then
 		AnimationQ = GetTickCount() + spellProc.windUpTime * 1000
 	end	
 
-	if unit.isMe and spellProc.name:lower():find("LandSlide") and spellProc.target.isHero then
+	if unit.isMe and spellProc.name:lower():find("landslide") and spellProc.target.isHero then
 		AnimationE = GetTickCount() + spellProc.windUpTime * 1000	
 end)	
 
