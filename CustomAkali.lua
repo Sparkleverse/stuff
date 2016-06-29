@@ -221,13 +221,13 @@ OnTick(function ()
 		
 		if AkaliMenu.KillSteal.KSC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(enemy, 550) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100) then
-				CastOffensiveItems(enemy)
+				CastSpell(GetItemSlot(myHero, 3144))
 			end
 		end
 	
 		if AkaliMenu.KillSteal.KSG:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(enemy, 700) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 250 + GetBonusAP(myHero) * 0.3) then
-			   CastOffensiveItems(enemy)
+			   CastSpell(GetItemSlot(myHero, 3146))
 			end
 		end	
 	end
