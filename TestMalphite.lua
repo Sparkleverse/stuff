@@ -81,7 +81,7 @@ local nextAttack = 0
 function QDmg(unit) return CalcDamage(myHero,unit, 20 + 50 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.6) end
 function EDmg(unit) return CalcDamage(myHero, unit, 0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + (GetArmor(myHero) * 0.3)) end
 function RDmg(unit) return CalcDamage(myHero, unit, 0, 100 + 100 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 1) end
-function IDamage(unit) return (50 + (20 * GetLevel(myHero)))
+function IDamage(unit) return (50 + (20 * GetLevel(myHero))) end
 
 OnTick(function ()
 	
