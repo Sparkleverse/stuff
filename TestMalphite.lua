@@ -292,6 +292,7 @@ OnProcessSpell(function(unit,spellProc)
 
 	if unit.isMe and spellProc.name:lower():find("landslide") and spellProc.target.isHero then
 		AnimationE = GetTickCount() + spellProc.windUpTime * 1000	
+	end	
 end)	
 
 print("Thank You For Using Custom Malphite, Have Fun :D")
