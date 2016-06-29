@@ -81,10 +81,10 @@ local nextAttack = 0
 function QDmg(unit) return CalcDamage(myHero,unit, 20 + 50 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.6) end
 function EDmg(unit) return CalcDamage(myHero, unit, 0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + (GetArmor(myHero) * 0.3)) end
 function RDmg(unit) return CalcDamage(myHero, unit, 0, 100 + 100 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 1) end
+function IDamage(unit) return (50 + (20 * GetLevel(myHero)))
 
 OnTick(function ()
 	
-	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local RStats = {delay = 0.050, range = 1000, radius = 300, speed = 1500 + GetMoveSpeed(myHero)}
 	local GetPercentMana = (GetCurrentMana(myHero) / GetMaxMana(myHero)) * 100
 	local target = GetCurrentTarget()
@@ -271,7 +271,7 @@ OnTick(function ()
 	end	
 end)
 
-OnDraw(function(myHero)
+OnDraw(function()
 	local pos = GetOrigin(myHero)
 	local mpos = GetMousePos()
 	if MalphiteMenu.Draw.DQ:Value() then DrawCircle(pos, 625, 1, 25, GoS.White) end
