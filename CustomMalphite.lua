@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Malphite" then return end
 
-local ver = "0.01"
+local ver = "0.02"
 
 require("OpenPredict")
 
@@ -57,6 +57,9 @@ MalphiteMenu.Misc:Boolean("AutoLevel", "Use Auto Level", true)
 MalphiteMenu.Misc:Boolean("AutoI", "Use Auto Ignite", true)
 MalphiteMenu.Misc:Boolean("AR", "Auto R on X Enemies", true)
 MalphiteMenu.Misc:Slider("ARC", "Min Enemies to Auto R",3,1,6,1)
+MalphiteMenu.Misc:Boolean("UI", "Use Items", true)
+MalphiteMenu.Misc:Boolean("ARO", "Auto Randuins", true)
+MalphiteMenu.Misc:Slider("AROC", "Min Enemies to Randuins",3,1,6,1)
 
 MalphiteMenu:SubMenu("Draw", "Drawings")
 MalphiteMenu.Draw:Boolean("DAA", "Draw AA Range", true)
@@ -72,6 +75,8 @@ local skinMeta = {["Malphite"] = {"Classic", "Shamrock", "Coral-Reef", "Marble",
 MalphiteMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
 MalphiteMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
+local AnimationQ = 0
+local AnimationE = 0
 local nextAttack = 0
 function QDmg(unit) return CalcDamage(myHero,unit, 20 + 50 * GetCastLevel(myHero,_Q) + GetBonusAP(myHero) * 0.6) end
 function EDmg(unit) return CalcDamage(myHero, unit, 0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + (GetArmor(myHero) * 0.3)) end
@@ -94,21 +99,23 @@ OnTick(function ()
 	if Mix:Mode() == "Combo" then
 		
 		if MalphiteMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 625) then
-			if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana then 
-				CastTargetSpell(target, _Q)	
+			if GetTickCount() > AnimationE and GetTickCount() > nextAttack then
+				if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana then 
+					CastTargetSpell(target, _Q)	
+				end
 			end
-		end
+		end	
 		
 		if MalphiteMenu.Combo.CE:Value() and Ready(_E) and ValidTarget(target, 400) then
 			if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana then
-				if GetTickCount() > nextAttack then	
+				if GetTickCount() > nextAttack and GetTickCount() > AnimationQ then	
 					CastSpell(_E)
 				end	
 			end
 		end	
 		
 		if MalphiteMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 125) then
-			if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana then
+			if MalphiteMenu.Combo.MMC:Value() <= GetPercentMana and GetTickCount() < nextAttack then
 				CastSpell(_W)
 			end
 		end
@@ -126,30 +133,28 @@ OnTick(function ()
 	if Mix:Mode() == "Harass" then
 		
 		if MalphiteMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 625) then
-			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana then
+			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana and GetTickCount() > nextAttack and GetTickCount() > AnimationE then
 				CastTargetSpell(target, _Q)
 			end
 		end		
 		
 		for _,closeminion in pairs(minionManager.objects) do	
 			if MalphiteMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(closeminion, 125) and EnemiesAround(closeminion,225) > 0 then
-				if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana then
+				if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana and GetTickCount() < nextAttack then
 					CastSpell(_W)
 				end
 			end
 		end
 		
 		if MalphiteMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(closeminion, 125) then
-			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana then
+			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana and GetTickCount() < nextAttack then
 				CastSpell(_W)
 			end
 		end	
 
 		if MalphiteMenu.Harass.HE:Value() and Ready(_E) and ValidTarget(closeminion, 400) then
-			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana then
-				if GetTickCount() > nextAttack then	
-					CastSpell(_E)
-				end
+			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana and GetTickCount() > AnimationQ and GetTickCount() > nextAttack then
+				CastSpell(_E)
 			end	
 		end
 	end
@@ -251,6 +256,19 @@ OnTick(function ()
 			end
 		end
 	end
+	
+	--ItemUsage
+	for _, enemy in pairs(GetEnemyHeroes()) do
+		if MalphiteMenu.Misc.UI:Value() and Ready(GetItemSlot(myHero, 3143)) and ValidTarget(enemy, 500) then
+			if GetDistance(myHero, enemy) > 240 and GetPercentHP(enemy) < 80 then
+				CastSpell(GetItemSlot(myHero, 3143))
+			end
+		end
+
+		if MalphiteMenu.Misc.ARO:Value() and Ready(GetItemSlot(myHero, 3143)) and EnemiesAround(myHero, 500) > MalphiteMenu.Misc.AROC:Value() then
+			CastSpell(GetItemSlot(myHero, 3143))
+		end		
+	end	
 end)
 
 OnDraw(function(myHero)
@@ -267,6 +285,14 @@ OnProcessSpell(function(unit,spellProc)
 	if unit.isMe and spellProc.name:lower():find("attack") and spellProc.target.isHero then
 		nextAttack = GetTickCount() + spellProc.windUpTime * 1000
 	end
-end)
+	
+	if unit.isMe and spellProc.name:lower():find("SeismicShard") and spellProc.target.isHero then
+		AnimationQ = GetTickCount() + spellProc.windUpTime * 1000
+	end	
+
+	if unit.isMe and spellProc.name:lower():find("LandSlide") and spellProc.target.isHero then
+		AnimationE = GetTickCount() + spellProc.windUpTime * 1000	
+	end	
+end)	
 
 print("Thank You For Using Custom Malphite, Have Fun :D")
