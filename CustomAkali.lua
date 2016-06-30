@@ -219,13 +219,13 @@ OnTick(function ()
 		
 		if AkaliMenu.KillSteal.KSC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(enemy, 550) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 100) then
-				CastSpell(GetItemSlot(myHero, 3144))
+				CastTargetSpell(target, GetItemSlot(myHero, 3144))
 			end
 		end
 	
 		if AkaliMenu.KillSteal.KSG:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(enemy, 700) then
 			if GetCurrentHP(enemy) < CalcDamage(myHero, enemy, 0, 250 + GetBonusAP(myHero) * 0.3) then
-			   CastSpell(GetItemSlot(myHero, 3146))
+			   CastTargetSpell(target, GetItemSlot(myHero, 3146))
 			end
 		end	
 	end
@@ -237,7 +237,7 @@ OnTick(function ()
 	
 	--Escape
 	if KeyIsDown(71) then 
-			MoveToXYZ(GetMousePos())
+		MoveToXYZ(GetMousePos())
 		for _,closeminion in pairs(minionManager.objects) do	
 			if AkaliMenu.Escape.ESCR:Value() and Ready(_R) and ValidTarget(closeminion,700) then	
 				if EnemiesAround(closeminion, 700) < 1 then
