@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.02"
+local ver = "0.03"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -49,6 +49,7 @@ RivenMenu.KillSteal:Boolean("KSW", "Use W", true)
 RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
+RivenMenu.Misc:Boolean("CAE", "Q Cancel with Emote", true)
 RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
@@ -281,5 +282,13 @@ OnProcessSpellComplete(function(unit,spell)
 		Mix:ResetAA()
 	end		
 end)
+
+OnAnimation(function(unit,animation)
+	if unit.isMe and RivenMenu.Misc.CAE:Value() and animation:find("Spell1") then
+		DelayAction(function()
+			CastEmote(EMOTE_DANCE)
+		end,0.02)
+	end
+end)	
 
 print("Thank You For Using Custom Riven, Have Fun :D")
