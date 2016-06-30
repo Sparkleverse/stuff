@@ -278,7 +278,7 @@ OnProcessSpellComplete(function(unit,spell)
 	end
 
 	if unit.isMe and spell.name:lower():find("riventricleave") then 
-		MixLib:ResetAA()
+		Mix:ResetAA()
 	end		
 end)
 
