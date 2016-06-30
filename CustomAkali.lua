@@ -126,17 +126,16 @@ OnTick(function ()
 				end
 			end	
 	
-			if AkaliMenu.Combo.HTGB:Value() and ValidTarget(target, 700) then
-				if Ready(GetItemSlot(myHero, 3146)) then
-					if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
-						CastSpell(GetItemSlot(myHero, 3146))
+			if AkaliMenu.Combo.HTGB:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(target, 700) then
+				if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
+					CastTargetSpell(target, GetItemSlot(myHero, 3146))
 					end
 				end	
 			end
 	
 			if AkaliMenu.Combo.BWC:Value() and Ready(GetItemSlot(myHero, 3144)) and ValidTarget(target, 550) then
 				if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
-					CastSpell(GetItemSlot(myHero, 3144))
+					CastTargetSpell(target, GetItemSlot(myHero, 3144))
 				end
 			end	
 		end	
