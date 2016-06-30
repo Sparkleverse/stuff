@@ -122,14 +122,13 @@ OnTick(function ()
 				if GetTickCount() > nextAttack then	
 					if AkaliMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 700) then
 						CastTargetSpell(target, _R)
-                	end
+                			end
 				end
 			end	
 	
 			if AkaliMenu.Combo.HTGB:Value() and Ready(GetItemSlot(myHero, 3146)) and ValidTarget(target, 700) then
 				if GetPercentHP(target) < AkaliMenu.Combo.HPHTGB:Value() then
 					CastTargetSpell(target, GetItemSlot(myHero, 3146))
-					end
 				end	
 			end
 	
