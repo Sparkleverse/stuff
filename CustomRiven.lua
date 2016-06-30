@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.01"
+local ver = "0.02"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -91,13 +91,13 @@ OnTick(function ()
 	
 	if Mix:Mode() == "Combo" then
 		
-		if not GotBuff(myHero, "RivenFengShuiEngine") then
+		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 125) then
 				CastSpell(_W)
 			end
 		end
 				
-		if GotBuff(myHero, "RivenFengShuiEngine") then
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 200) then
 				CastSpell(_W)
 			end
@@ -129,12 +129,10 @@ OnTick(function ()
 	
 	if Mix:Mode() == "LaneClear" then
 		
-		for _,closeminion in pairs(minionManager.objects) do
-			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125) > 1 then
+		if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125) > 1 then
 				CastSpell(_W)
-			end
 		end
-	end	
+	end
 	
 	if Mix:Mode() == "LastHit" then
 		for _,closeminion in pairs(minionManager.objects) do
@@ -146,7 +144,7 @@ OnTick(function ()
 			
 			if RivenMenu.LastHit.LHQ:Value() and Ready(_Q) and ValidTarget(closeminion, 260) then
 				if GetCurrentHP(closeminion) < QDmg(closeminion) then
-					CastSkillShot(closeminion, _Q)
+					CastSkillShot(_Q, closeminion)
 				end	
 			end
 		end
@@ -154,7 +152,7 @@ OnTick(function ()
 
 	--KillSteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
-		if not GotBuff(myHero, "RivenFengShuiEngine") then
+		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 125) then
 				if GetCurrentHP(enemy) < WDmg(enemy) then
 					CastSpell(_W)
@@ -162,7 +160,7 @@ OnTick(function ()
 			end
 		end		
 
-		if GotBuff(myHero, "RivenFengShuiEngine") then
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 200) then
 				if GetCurrentHP(enemy) < WDmg(enemy) then
 					CastSpell(_W)
@@ -170,7 +168,7 @@ OnTick(function ()
 			end
 		end	
 		
-		if not GotBuff(myHero, "RivenFengShuiEngine") then
+		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 260) then
 				if GetCurrentHP(enemy) < QDmg(enemy) then
 					CastSkillShot(_Q, target)
@@ -178,7 +176,7 @@ OnTick(function ()
 			end
 		end
 			
-		if GotBuff(myHero, "RivenFengShuiEngine") then
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 335) then
 				if GetCurrentHP(enemy) < QDmg(enemy) then
 					CastSkillShot(_Q, target)
@@ -186,12 +184,12 @@ OnTick(function ()
 			end
 		end
 
-		if GotBuff(myHero, "RivenFengShuiEngine") then
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 900) then
 				if GetCurrentHP(enemy) < RDmg then
 					local RPred = GetConicAOEPrediction(enemy,RStats)
 					if RPred.hitChance >= 0.3 then
-						CastSkillShot(_R, target) 
+						CastSkillShot(_R, RPred.castPos) 
 					end
 				end
 			end
@@ -199,13 +197,13 @@ OnTick(function ()
 	end	
 	
 	--AutoW
-	if not GotBuff(myHero, "RivenFengShuiEngine") then
+	if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 125) > RivenMenu.Misc.AWC:Value() then
 			CastSpell(_W)
 		end
 	end
 
-	if GotBuff(myHero, "RivenFengShuiEngine") then
+	if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 200) > RivenMenu.Misc.AWC:Value() then
 			CastSpell(_W)
 		end
@@ -277,7 +275,11 @@ OnProcessSpellComplete(function(unit,spell)
 				end
 			end
 		end
-	end	
-end)	
+	end
+
+	if unit.isMe and spell.name:lower():find("riventricleave") then 
+		MixLib:ResetAA()
+	end		
+end)
 
 print("Thank You For Using Custom Riven, Have Fun :D")
