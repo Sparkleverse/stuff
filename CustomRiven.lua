@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.03"
+local ver = "0.04"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -27,7 +27,10 @@ RivenMenu:SubMenu("Combo", "Combo")
 RivenMenu.Combo:Boolean("CQ", "Use Q", true)
 RivenMenu.Combo:Boolean("CW", "Use W", true)
 RivenMenu.Combo:Boolean("CE", "Use E", true)
-RivenMenu.Combo:Boolean("CH", "Use Hydra", true)
+RivenMenu.Combo:Boolean("CR", "Use R", true)
+RivenMenu.Combo:Boolean("CH", "Use R Hydra", true)
+RivenMenu.Combo:Boolean("CTH", "Use T Hydra", true)
+RivenMenu.Combo:Boolean("YGB", "Use GhostBlade", true)
 
 RivenMenu:SubMenu("Harass", "Harass")
 RivenMenu.Harass:Boolean("HQ", "Use Q", true)
@@ -38,6 +41,7 @@ RivenMenu.Harass:Boolean("HH", "Use Hydra")
 RivenMenu:SubMenu("LaneClear", "LaneClear")
 RivenMenu.LaneClear:Boolean("LCQ", "Use Q")
 RivenMenu.LaneClear:Boolean("LCW", "Use W")
+RivenMenu.LaneClear:Boolean("LCH", "Use Hydra")
 
 RivenMenu:SubMenu("LastHit", "LastHit")
 RivenMenu.LastHit:Boolean("LHQ", "Use Q", true)
@@ -110,7 +114,19 @@ OnTick(function ()
 		
 		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3074)) and ValidTarget(target, 400) then
 			CastSpell(GetItemSlot(myHero, 3074))
-		end			
+		end	
+		
+		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3077)) and ValidTarget(target, 350) then
+			CastSpell(GetItemSlot(myHero, 3077))
+		end	
+
+		if RivenMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 600) then
+			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+				if Ready(_Q) then
+					CastSpell(_R)
+				end
+			end
+		end		
 	end	
 
 	if Mix:Mode() == "Harass" then
@@ -125,7 +141,15 @@ OnTick(function ()
 		
 		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3074)) and ValidTarget(target, 400) then
 			CastSpell(GetItemSlot(myHero, 3074))
-		end			
+		end		
+
+		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3077)) and ValidTarget(target, 350) then
+			CastSpell(GetItemSlot(myHero, 3077))
+		end	
+
+		if RivenMenu.Combo.CYG:Value() and Ready(GetItemSlot(myHero, 3142)) and ValidTarget(target, 500) then
+			CastSpell(GetItemSlot(myHero, 3142))
+		end	
 	end	
 	
 	if Mix:Mode() == "LaneClear" then
@@ -133,6 +157,14 @@ OnTick(function ()
 		if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125) > 1 then
 				CastSpell(_W)
 		end
+		
+		if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3077)) and MinionsAround(myHero, 350) > 1 then
+			CastSpell(GetItemSlot(myHero, 3077))
+		end
+
+		if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3074)) and MinionsAround(myHero, 400) > 1 then
+			CastSpell(GetItemSlot(myHero, 3074))
+		end			
 	end
 	
 	if Mix:Mode() == "LastHit" then
@@ -233,18 +265,33 @@ OnTick(function ()
 	if KeyIsDown(71) then 
 		MoveToXYZ(GetMousePos())
 		if RivenMenu.Escape.EQ:Value() and Ready(_Q) then
-			CastSkillShot(_Q, GetMousePos())
+			CastSkillShot(_Q, target)
 		end
 			
 		if RivenMenu.Escape.EE:Value() and Ready(_E) then
-			CastSkillShot(_E, GetMousePos())
+			CastSkillShot(_E, target)
 		end
 	end		
+	
+	--GapClose
+	if Mix:Mode() == "Combo" then
+		if GetDistance(myHero, target) < 700 and GetDistance(myHero, target) > 300 then
+			if RivenMenu.Combo.CE:Value() and Ready(_E) then
+				CastSkillShot(_E, target) 
+			end
+		end
+		
+		if GetDistance(myHero, target) < 900 and GetDistance(myHero, target) > 300 then
+			if RivenMenu.Combo.CQ:Value() and Ready(_Q) then
+				CastSkillShot(_Q, target)
+			end
+		end			
+	end	
 end)
 
 OnDraw(function() 
 	local pos = GetOrigin(myHero)
-	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 260, 1, 25, GoS.White) end
+	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 270, 1, 25, GoS.White) end
 	if RivenMenu.Draw.DAA:Value() then DrawCircle(pos, 125, 1, 25, GoS.Green) end
 	if RivenMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
 	if RivenMenu.Draw.DR:Value() then DrawCircle(pos, 900, 1, 25, GoS.Cyan) end
@@ -253,16 +300,28 @@ end)
 OnProcessSpellComplete(function(unit,spell)
 	local target = GetCurrentTarget()
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Combo" then				
-			if RivenMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 260) then
-				CastSkillShot(_Q, target)
-			end
-		end	
-	end
+		if Mix:Mode() == "Combo" then
+			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+				if RivenMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 260) then
+					CastSkillShot(_Q, target)
+				end
+			end	
+		end
+	end	
+	
+	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
+		if Mix:Mode() == "Combo" then
+			if GetCastName(myHero, _R):lower():find("rivenizunablade") then
+				if RivenMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 335) then
+					CastSkillShot(_Q, target)
+				end
+			end	
+		end
+	end	
 	
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
 		if Mix:Mode() == "Harass" then
-			if RivenMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 260) then
+			if RivenMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 300) then
 				CastSkillShot(_Q, target)
 			end
 		end
@@ -280,14 +339,28 @@ OnProcessSpellComplete(function(unit,spell)
 
 	if unit.isMe and spell.name:lower():find("riventricleave") then 
 		Mix:ResetAA()
-	end		
-end)
+	end	
+
+	if RivenMenu.Combo.CTH:Value() and unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
+		if Mix:Mode() == "Combo" then
+			local TH = GetItemSlot(myHero,3748)
+			if TH > 0 then 
+				if Ready(TH) and GetCurrentHP(target) > CalcDamage(myHero, target, myHero.totalDamage + (GetMaxHP(myHero) / 10), ((myHero.totalDamage / 100) * 6) + (GetBonusAP(myHero) / 6)) then
+					CastSpell(TH)
+					DelayAction(function()
+						AttackUnit(spell.target)
+					end, spell.windUpTime)
+				end
+			end
+		end
+	end
+end)	
 
 OnAnimation(function(unit,animation)
 	if unit.isMe and RivenMenu.Misc.CAE:Value() and animation:find("Spell1") then
 		DelayAction(function()
 			CastEmote(EMOTE_DANCE)
-		end,0.02)
+		end, 0.02)
 	end
 end)	
 
