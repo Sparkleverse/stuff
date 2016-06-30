@@ -279,3 +279,5 @@ OnProcessSpellComplete(function(unit,spell)
 		end
 	end	
 end)	
+
+print("Thank You For Using Custom Riven, Have Fun :D")
