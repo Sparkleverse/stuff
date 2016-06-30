@@ -2,6 +2,16 @@ if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
 local ver = "0.01"
 
+function AutoUpdate(data)
+    if tonumber(data) > tonumber(ver) then
+        print("New version found! " .. data)
+        print("Downloading update, please wait...")
+        DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/CustomRiven.lua", SCRIPT_PATH .. "CustomRiven.lua", function() print("Update Complete, please 2x F6!") return end)
+    end
+end
+
+GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/CustomRiven.version", AutoUpdate)
+
 require ("DamageLib")
 require ("OpenPredict")
 
