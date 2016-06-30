@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.04"
+local ver = "0.05"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -14,6 +14,7 @@ GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/Cu
 
 require ("DamageLib")
 require ("OpenPredict")
+require('MapPositionGOS')
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
@@ -54,6 +55,7 @@ RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
 RivenMenu.Misc:Boolean("CAE", "Q Cancel with Emote", true)
+RivenMenu.Misc:Boolean("WJ", "WallJump, Hold T", true)
 RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
@@ -70,6 +72,10 @@ RivenMenu:SubMenu("Escape", "Escape, Hold G")
 RivenMenu.Escape:Boolean("EQ", "Use Q", true)
 RivenMenu.Escape:Boolean("EE", "Use E", true)
 
+RivenMenu:SubMenu("GC", "GapClose")
+RivenMenu.GC:Boolean("GCQ", "Use Q", true)
+RivenMenu.GC:Boolean("GCE", "Use E", true)
+
 RivenMenu:SubMenu("SkinChanger", "SkinChanger")
 
 local skinMeta = {["Riven"] = {"Classic", "Redeemed", "Crimson Elite", "Battle Bunny", "Championship", "Dragonblade", "Arcade"}}
@@ -78,6 +84,7 @@ RivenMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, mo
 
 function WDmg(unit) return CalcDamage(myHero,unit, 20 + 30 * GetCastLevel(myHero,_W) + GetBonusDmg(myHero) * 1, 0) end
 function QDmg(unit) return CalcDamage(myHero,unit, -10 + 20 * GetCastLevel(myHero,_Q) + (myHero.totalDamage) * ((35 + 5 * GetCastLevel(myHero, _Q)) / 100), 0) end
+local QCast = 0
 
 OnTick(function ()
 
@@ -95,6 +102,18 @@ OnTick(function ()
 	end
 	
 	if Mix:Mode() == "Combo" then
+	
+		if RivenMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 600) then
+			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+				if Ready(_Q) then
+					CastSpell(_R)
+				end
+			end
+		end	
+		
+		if RivenMenu.Combo.YGB:Value() and Ready(GetItemSlot(myHero, 3142)) and ValidTarget(target, 700) then
+			CastSpell(GetItemSlot(myHero, 3142)) 
+		end	
 		
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 125) then
@@ -118,14 +137,6 @@ OnTick(function ()
 		
 		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3077)) and ValidTarget(target, 350) then
 			CastSpell(GetItemSlot(myHero, 3077))
-		end	
-
-		if RivenMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 600) then
-			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-				if Ready(_Q) then
-					CastSpell(_R)
-				end
-			end
 		end		
 	end	
 
@@ -146,28 +157,33 @@ OnTick(function ()
 		if RivenMenu.Combo.CH:Value() and Ready(GetItemSlot(myHero, 3077)) and ValidTarget(target, 350) then
 			CastSpell(GetItemSlot(myHero, 3077))
 		end	
-
-		if RivenMenu.Combo.CYG:Value() and Ready(GetItemSlot(myHero, 3142)) and ValidTarget(target, 500) then
-			CastSpell(GetItemSlot(myHero, 3142))
-		end	
 	end	
 	
 	if Mix:Mode() == "LaneClear" then
-		
-		if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125) > 1 then
+	
+		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125, MINION_ENEMY) > 1 then
 				CastSpell(_W)
+			end
+		end	
+		
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
+			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 200, MINION_ENEMY) > 1 then
+				CastSpell(_W)
+			end
 		end
 		
-		if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3077)) and MinionsAround(myHero, 350) > 1 then
-			CastSpell(GetItemSlot(myHero, 3077))
+			if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3077)) and MinionsAround(myHero, 350, MINION_ENEMY) > 1 then
+				CastSpell(GetItemSlot(myHero, 3077))
+			end
+	
+			if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3074)) and MinionsAround(myHero, 400, MINION_ENEMY) > 1 then
+				CastSpell(GetItemSlot(myHero, 3074))
+			end			
 		end
-
-		if RivenMenu.LaneClear.LCH:Value() and Ready(GetItemSlot(myHero, 3074)) and MinionsAround(myHero, 400) > 1 then
-			CastSpell(GetItemSlot(myHero, 3074))
-		end			
-	end
 	
 	if Mix:Mode() == "LastHit" then
+	
 		for _,closeminion in pairs(minionManager.objects) do
 			if RivenMenu.LastHit.LHW:Value() and Ready(_W) and ValidTarget(closeminion, 125) then
 				if WDmg(closeminion) >= GetCurrentHP(closeminion) then
@@ -265,34 +281,53 @@ OnTick(function ()
 	if KeyIsDown(71) then 
 		MoveToXYZ(GetMousePos())
 		if RivenMenu.Escape.EQ:Value() and Ready(_Q) then
-			CastSkillShot(_Q, target)
+			CastSkillShot(_Q, GetMousePos())
 		end
 			
 		if RivenMenu.Escape.EE:Value() and Ready(_E) then
-			CastSkillShot(_E, target)
+			CastSkillShot(_E, GetMousePos())
 		end
 	end		
 	
 	--GapClose
 	if Mix:Mode() == "Combo" then
 		if GetDistance(myHero, target) < 700 and GetDistance(myHero, target) > 300 then
-			if RivenMenu.Combo.CE:Value() and Ready(_E) then
+			if RivenMenu.GC.GCE:Value() and Ready(_E) then
 				CastSkillShot(_E, target) 
 			end
 		end
 		
 		if GetDistance(myHero, target) < 900 and GetDistance(myHero, target) > 300 then
-			if RivenMenu.Combo.CQ:Value() and Ready(_Q) then
+			if RivenMenu.GC.GCQ:Value() and Ready(_Q) then
 				CastSkillShot(_Q, target)
 			end
 		end			
 	end	
+	
+	--WallJump
+	if RivenMenu.Misc.WJ:Value() then
+		if KeyIsDown(84) then
+			local movePos1  = GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 75
+			local movePos2 =  GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 450
+			if QCast < 2 and Ready(_Q) then
+				CastSkillShot(_Q, GetMousePos())
+			end
+			if not MapPosition:inWall(movePos1) then
+				MoveToXYZ(GetMousePos())
+				else
+				if not MapPosition:inWall(movePos2) and Ready(_Q) then
+					CastSkillShot(_Q, movePos2)
+				end	
+			end			
+		end
+	end
 end)
 
 OnDraw(function() 
 	local pos = GetOrigin(myHero)
-	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 270, 1, 25, GoS.White) end
+	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 260, 1, 25, GoS.White) end
 	if RivenMenu.Draw.DAA:Value() then DrawCircle(pos, 125, 1, 25, GoS.Green) end
+	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 125, 1, 25, Gos.Blue) end
 	if RivenMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
 	if RivenMenu.Draw.DR:Value() then DrawCircle(pos, 900, 1, 25, GoS.Cyan) end
 end)	
@@ -363,5 +398,17 @@ OnAnimation(function(unit,animation)
 		end, 0.02)
 	end
 end)	
+
+OnUpdateBuff(function(unit,buff)
+	if unit.isMe and buff.Name:lower():find("riventricleave") then 
+		QCast = buff.Count
+	end
+end)
+
+OnRemoveBuff(function(unit,buff)
+	if unit.isMe and buff.Name:lower():find("riventricleave") then 
+		QCast = 0
+	end
+end)
 
 print("Thank You For Using Custom Riven, Have Fun :D")
