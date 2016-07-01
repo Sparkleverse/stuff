@@ -8,7 +8,7 @@ end
 
 require("Analytics")
 
-Analytics("Eternal Akali", "Toshibiotro")
+Analytics("Eternal Riven", "Toshibiotro")
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
