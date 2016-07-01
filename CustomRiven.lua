@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.06"
+local ver = "0.07"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -8,7 +8,7 @@ end
 
 require("Analytics")
 
-Analytics("Eternal Riven", "Toshibiotro")
+Analytics("Eternal Riven", "Toshibiotro", true)
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -91,14 +91,15 @@ RivenMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[m
 RivenMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
 function WDmg(unit) return CalcDamage(myHero,unit, 20 + 30 * GetCastLevel(myHero,_W) + GetBonusDmg(myHero) * 1, 0) end
-function QDmg(unit) return CalcDamage(myHero,unit, -10 + 20 * GetCastLevel(myHero,_Q) + (myHero.totalDamage) * ((35 + 5 * GetCastLevel(myHero, _Q)) / 100), 0) end
+function QDmg(unit) return CalcDamage(myHero,unit, -10 + 20 * GetCastLevel(myHero,_Q) + (myHero.totalDamage) * ((35 + 5 * GetCastLevel(myHero, _Q)) * 0.01), 0) end
 local QCast = 0
+local target = GetCurrentTarget()
 
 OnTick(function ()
-
+	
 	local mousePos = GetMousePos()
-	local target = GetCurrentTarget()
-	local RStats = {delay = 0.05, range = 900, radius = 100, speed = 1600}
+	target = GetCurrentTarget()
+	local RStats = {delay = 0.025, range = 900, radius = 100, speed = 1600}
 	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local RDmg = getdmg("R",target,myHero,GetCastLevel(myHero, _R))
 	local YGB = GetItemSlot(myHero, 3142)
@@ -127,13 +128,13 @@ OnTick(function ()
 		end
 		
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 235) then
+			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 275) then
 				CastSpell(_W)
 			end
 		end
 				
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 310) then
+			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 345) then
 				CastSpell(_W)
 			end
 		end
@@ -145,7 +146,7 @@ OnTick(function ()
 
 	if Mix:Mode() == "Harass" then
 		
-		if RivenMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(target, 125) then
+		if RivenMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(target, 275) then
 				CastSpell(_W)
 		end
 
@@ -157,13 +158,13 @@ OnTick(function ()
 	if Mix:Mode() == "LaneClear" then
 	
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 125, MINION_ENEMY) > 1 then
+			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 275, MINION_ENEMY) > 1 then
 				CastSpell(_W)
 			end
 		end	
 		
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 200, MINION_ENEMY) > 1 then
+			if RivenMenu.LaneClear.LCW:Value() and Ready(_W) and MinionsAround(myHero, 345, MINION_ENEMY) > 1 then
 				CastSpell(_W)
 			end
 		end
@@ -180,7 +181,7 @@ OnTick(function ()
 	if Mix:Mode() == "LastHit" then
 	
 		for _,closeminion in pairs(minionManager.objects) do
-			if RivenMenu.LastHit.LHW:Value() and Ready(_W) and ValidTarget(closeminion, 125) then
+			if RivenMenu.LastHit.LHW:Value() and Ready(_W) and ValidTarget(closeminion, 275) then
 				if WDmg(closeminion) >= GetCurrentHP(closeminion) then
 					CastSpell(_W)
 				end
@@ -197,7 +198,7 @@ OnTick(function ()
 	--KillSteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 125) then
+			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 275) then
 				if GetCurrentHP(enemy) < WDmg(enemy) then
 					CastSpell(_W)
 				end
@@ -205,7 +206,7 @@ OnTick(function ()
 		end		
 
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 200) then
+			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 345) then
 				if GetCurrentHP(enemy) < WDmg(enemy) then
 					CastSpell(_W)
 				end
@@ -242,13 +243,13 @@ OnTick(function ()
 	
 	--AutoW
 	if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 125) > RivenMenu.Misc.AWC:Value() then
+		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 275) > RivenMenu.Misc.AWC:Value() then
 			CastSpell(_W)
 		end
 	end
 
 	if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 200) > RivenMenu.Misc.AWC:Value() then
+		if RivenMenu.Misc.AW:Value() and Ready(_W) and EnemiesAround(myHero, 345) > RivenMenu.Misc.AWC:Value() then
 			CastSpell(_W)
 		end
 	end		
@@ -318,11 +319,11 @@ OnTick(function ()
 	end
 end)
 
-OnDraw(function() 
+OnDraw(function()
 	local pos = GetOrigin(myHero)
 	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 260, 1, 25, GoS.White) end
 	if RivenMenu.Draw.DAA:Value() then DrawCircle(pos, 125, 1, 25, GoS.Green) end
-	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 235, 1, 25, GoS.Blue) end
+	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 275, 1, 25, GoS.Blue) end
 	if RivenMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
 	if RivenMenu.Draw.DR:Value() then DrawCircle(pos, 900, 1, 25, GoS.Cyan) end
 end)	
@@ -330,8 +331,8 @@ end)
 OnProcessSpell(function(unit, spell)
 	local target = GetCurrentTarget()
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Combo" then
-			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+		if Mix:Mode() == "Combo" then 
+			if not GetCastName(myHero, _R):lower():find("rivenizunablade") or not Ready(_R) then
 				DelayAction(function()
 					if RivenMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 260) then
 						CastSkillShot(_Q, spell.target)	
@@ -340,6 +341,7 @@ OnProcessSpell(function(unit, spell)
 			end
 		end
 	end	
+	
 	
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
 		if Mix:Mode() == "Combo" then
@@ -356,7 +358,7 @@ OnProcessSpell(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
 		if Mix:Mode() == "Harass" then
 			DelayAction(function()
-				if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+				if not GetCastName(myHero, _R):lower():find("rivenizunablade") or not Ready(_R) then
 					if RivenMenu.Harass.HQ:Value() then
 						if Ready(_Q) and ValidTarget(target, 260) then
 							CastSkillShot(_Q, spell.target)
@@ -371,7 +373,7 @@ OnProcessSpell(function(unit, spell)
 		if Mix:Mode() == "LaneClear" then
 			DelayAction(function()
 				if RivenMenu.LaneClear.LCQ:Value() then
-					if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+					if not GetCastName(myHero, _R):lower():find("rivenizunablade") or not Ready(_R) then
 						for _,closeminion in pairs(minionManager.objects) do
 							if Ready(_Q) and ValidTarget(closeminion, 260) then
 								CastSkillShot(_Q, closeminion)
@@ -453,6 +455,7 @@ OnProcessSpellComplete(function(unit,spell)
 		end
 	end
 end)
+
 
 OnAnimation(function(unit,animation)
 	if unit.isMe and RivenMenu.Misc.CAE:Value() and animation:find("Spell1") then
