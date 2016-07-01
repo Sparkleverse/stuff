@@ -322,7 +322,7 @@ OnDraw(function()
 	local pos = GetOrigin(myHero)
 	if RivenMenu.Draw.DQ:Value() then DrawCircle(pos, 260, 1, 25, GoS.White) end
 	if RivenMenu.Draw.DAA:Value() then DrawCircle(pos, 125, 1, 25, GoS.Green) end
-	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 125, 1, 25, GoS.Blue) end
+	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 235, 1, 25, GoS.Blue) end
 	if RivenMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
 	if RivenMenu.Draw.DR:Value() then DrawCircle(pos, 900, 1, 25, GoS.Cyan) end
 end)	
