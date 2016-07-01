@@ -427,18 +427,24 @@ OnProcessSpell(function(unit, spell)
 			end
 		end	
 	end
-	
+end)
+
+OnProcessSpellComplete(function(unit,spell)
+	local target = GetCurrentTarget()
 	if RivenMenu.Combo.CTH:Value() and unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
 		if Mix:Mode() == "Combo" then
 			local TH = GetItemSlot(myHero, 3748)
 			if TH > 0 then 
 				if Ready(TH) and GetCurrentHP(target) > CalcDamage(myHero, target, myHero.totalDamage + (GetMaxHP(myHero) / 10), 0) then
 					CastSpell(TH)
+					DelayAction(function()
+						AttackUnit(spell.target)
+					end, spell.windUpTime)
 				end
 			end
 		end
 	end
-end)	
+end)
 
 OnAnimation(function(unit,animation)
 	if unit.isMe and RivenMenu.Misc.CAE:Value() and animation:find("Spell1") then
