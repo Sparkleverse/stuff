@@ -2,6 +2,14 @@ if GetObjectName(GetMyHero()) ~= "Malphite" then return end
 
 local ver = "0.02"
 
+if not FileExist(COMMON_PATH.. "Analytics.lua") then
+  DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
+end
+
+require("Analytics")
+
+Analytics("Eternal Malphite", "Toshibiotro")
+
 require("OpenPredict")
 
 function AutoUpdate(data)
