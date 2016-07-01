@@ -127,13 +127,13 @@ OnTick(function ()
 		end
 		
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 125) then
+			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 235) then
 				CastSpell(_W)
 			end
 		end
 				
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 200) then
+			if RivenMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 310) then
 				CastSpell(_W)
 			end
 		end
