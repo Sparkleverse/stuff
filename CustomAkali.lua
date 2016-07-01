@@ -2,6 +2,14 @@ if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
 local ver = "0.09"
 
+if not FileExist(COMMON_PATH.. "Analytics.lua") then
+  DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
+end
+
+require("Analytics")
+
+Analytics("Eternal Akali", "Toshibiotro")
+
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
         print("New version found! " .. data)
