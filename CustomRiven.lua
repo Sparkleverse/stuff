@@ -52,6 +52,11 @@ RivenMenu.LaneClear:Boolean("LCQ", "Use Q")
 RivenMenu.LaneClear:Boolean("LCW", "Use W")
 RivenMenu.LaneClear:Boolean("LCH", "Use Hydra")
 
+RivenMenu:SubMenu("JungleClear", "JungleClear")
+RivenMenu.JungleClear:Boolean("JCQ", "Use Q", true)
+RivenMenu.JungleClear:Boolean("JCW", "Use W", true)
+RivenMenu.JungleClear:Boolean("JCE", "Use E", true)
+
 RivenMenu:SubMenu("LastHit", "LastHit")
 RivenMenu.LastHit:Boolean("LHQ", "Use Q", true)
 RivenMenu.LastHit:Boolean("LHW", "Use W", true)
@@ -216,7 +221,7 @@ OnTick(function ()
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 260) then
 				if GetCurrentHP(enemy) < QDmg(enemy) then
-					CastSkillShot(_Q, target)
+					CastSkillShot(_Q, enemy)
 				end
 			end
 		end
@@ -224,7 +229,7 @@ OnTick(function ()
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 335) then
 				if GetCurrentHP(enemy) < QDmg(enemy) then
-					CastSkillShot(_Q, target)
+					CastSkillShot(_Q, enemy)
 				end
 			end
 		end
@@ -315,6 +320,21 @@ OnTick(function ()
 					CastSkillShot(_Q, movePos2)
 				end	
 			end			
+		end
+	end
+
+	--Jungle Clear
+	if Mix:Mode() == "LaneClear" then
+		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
+			if RivenMenu.JungleClear.JCW:Value() and Ready(_W) and MinionsAround(myHero, 275, MINION_JUNGLE) > 0 then
+				CastSpell(_W)
+			end
+		end	
+	
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then 
+			if RivenMenu.JungleClear.JCW:Value() and Ready(_W) and MinionsAround(myHero, 345, MINION_JUNGLE) > 0 then
+				CastSpell(_W)
+			end
 		end
 	end
 end)
@@ -434,6 +454,14 @@ OnProcessSpell(function(unit, spell)
 				if Ready(Tiamat) and ValidTarget(target, 350) then
 					CastSpell(Tiamat)
 				end
+			end
+		end	
+	end
+
+	if GetTeam(unit) == 300 and spell.name:lower():find("attack") and spell.target.isMe then
+		if Mix:Mode() == "LaneClear" then
+			if RivenMenu.JungleClear.JCE:Value() and Ready(_E) then
+				CastSkillShot(_E, GetMousePos())
 			end
 		end	
 	end
