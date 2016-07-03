@@ -517,7 +517,7 @@ OnRemoveBuff(function(unit,buff)
 end)
 
 OnProcessWaypoint(function(unit, waypointProc)
-	if unit.isHero and waypointProc.dashspeed > unit.ms and not unit.isMe then
+	if unit.isHero and waypointProc.dashspeed > unit.ms and not unit.isMe and unit.team == 300 - myHero.team then
 		local dashTargetPos = waypointProc.position
 		if RivenMenu.AGC.AGCW:Value() then	
 			if GetDistance(myHero, dashTargetPos) < GetCastRange(myHero, _W) and Ready(_W) then
