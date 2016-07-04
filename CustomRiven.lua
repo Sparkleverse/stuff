@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.1"
+local ver = "0.11"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -37,8 +37,8 @@ RivenMenu.Combo:Boolean("CQ", "Use Q", true)
 RivenMenu.Combo:Boolean("CW", "Use W", true)
 RivenMenu.Combo:Boolean("CE", "Use E", true)
 RivenMenu.Combo:Boolean("CR", "Use R", true)
-RivenMenu.Combo:Boolean("CH", "Use R Hydra", true)
 RivenMenu.Combo:Slider("RC", "Min Enemy HP to Cast R",60,1,100,1)
+RivenMenu.Combo:Boolean("CH", "Use R Hydra", true)
 RivenMenu.Combo:Boolean("CTH", "Use T Hydra", true)
 RivenMenu.Combo:Boolean("YGB", "Use GhostBlade", true)
 
@@ -349,13 +349,15 @@ OnTick(function ()
 	
 	--Auto R
 	for _, enemy in pairs(GetEnemyHeroes()) do
-		if RivenMenu.Misc.AR:Value() and EnemiesAround(enemy, 100) >= RivenMenu.Misc.ARC:Value() and Ready(_R) then
-			local RPred = GetConicAOEPrediction(enemy,RStats)
-			if RPred.hitChance >= 0.3 then
-				CastSkillShot(_R, RPred.castPos) 
-			end
-		end	
-	end
+		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
+			if RivenMenu.Misc.AR:Value() and EnemiesAround(enemy, 100) >= RivenMenu.Misc.ARC:Value() and Ready(_R) then
+				local RPred = GetConicAOEPrediction(enemy,RStats)
+				if RPred.hitChance >= 0.3 then
+					CastSkillShot(_R, RPred.castPos) 
+				end
+			end	
+		end
+	end	
 end)
 
 OnDraw(function()
@@ -369,7 +371,6 @@ end)
 
 OnProcessSpell(function(unit, spell)
 	local target = GetCurrentTarget()
-	
 	if RivenMenu.Combo.YGB:Value() and unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
 		if Mix:Mode() == "Combo" then
 			local YGB = GetItemSlot(myHero, 3142)
@@ -410,6 +411,26 @@ OnProcessSpell(function(unit, spell)
 			end
 		end	
 	end
+	
+	if unit.isMe and spell.name:lower():find("riventricleave") then 
+		Mix:ResetAA()	
+	end
+	
+	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("rivenizunablade") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("rivenmartyr") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
+		Mix:ResetAA()
+	end	
 end)
 
 OnProcessSpellComplete(function(unit,spell)
@@ -488,26 +509,6 @@ OnProcessSpellComplete(function(unit,spell)
 			end
 		end
 	end
-	
-	if unit.isMe and spell.name:lower():find("riventricleave") then 
-		Mix:ResetAA()	
-	end
-	
-	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenizunablade") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenmartyr") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
-		Mix:ResetAA()
-	end	
 	
 	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
 		DelayAction(function()
