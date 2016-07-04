@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.11"
+local ver = "0.12"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -68,7 +68,6 @@ RivenMenu.KillSteal:Boolean("KSW", "Use W", true)
 RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
-RivenMenu.Misc:Boolean("CAE", "Q Cancel with Emote", true)
 RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
@@ -518,13 +517,18 @@ OnProcessSpellComplete(function(unit,spell)
 end) 
 
 
-OnAnimation(function(unit,animation)
-	if unit.isMe and RivenMenu.Misc.CAE:Value() and animation:find("Spell1") then
-		DelayAction(function()
+OnCreateObj(function(object)
+	if object and GetObjectBaseName(object) and GetDistance(GetOrigin(object)) < 1000 then
+		if object.name:find("Riven_Base_Q_") and GetObjectBaseName(object):find("_detonate") and GetDistance(object) < 225 then
 			CastEmote(EMOTE_DANCE)
-		end, 0.02)
+			for delay = 15,(GetLatency()*2) do
+				DelayAction(function()
+					Mix:ResetAA()
+				end, delay)
+			end
+		end
 	end
-end)	
+end)
 
 OnUpdateBuff(function(unit,buff)
 	if unit.isMe and buff.Name:lower():find("riventricleave") then 
@@ -536,7 +540,7 @@ OnRemoveBuff(function(unit,buff)
 	if unit.isMe and buff.Name:lower():find("riventricleave") then 
 		QCast = 0
 	end
-end)
+end)		
 
 OnProcessWaypoint(function(unit, waypointProc)
 	if unit.isHero and waypointProc.dashspeed > unit.ms and not unit.isMe and unit.team == 300 - myHero.team then
