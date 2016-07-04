@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.09"
+local ver = "0.1"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -38,6 +38,7 @@ RivenMenu.Combo:Boolean("CW", "Use W", true)
 RivenMenu.Combo:Boolean("CE", "Use E", true)
 RivenMenu.Combo:Boolean("CR", "Use R", true)
 RivenMenu.Combo:Boolean("CH", "Use R Hydra", true)
+RivenMenu.Combo:Slider("RC", "Min Enemy HP to Cast R",60,1,100,1)
 RivenMenu.Combo:Boolean("CTH", "Use T Hydra", true)
 RivenMenu.Combo:Boolean("YGB", "Use GhostBlade", true)
 
@@ -68,11 +69,12 @@ RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
 RivenMenu.Misc:Boolean("CAE", "Q Cancel with Emote", true)
-RivenMenu.Misc:Boolean("WJ", "WallJump, Hold T", true)
 RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
 RivenMenu.Misc:Slider("AWC", "Min Enemies To Auto W",3,1,6,1)
+RivenMenu.Misc:Boolean("AR", "Auto R If Hit X Enemies", true)
+RivenMenu.Misc:Slider("ARC", "Min Enemies To Auto R",4,1,6,1)
 
 RivenMenu:SubMenu("Draw", "Drawings")
 RivenMenu.Draw:Boolean("DAA", "Draw AA Range", true)
@@ -81,7 +83,7 @@ RivenMenu.Draw:Boolean("DW", "Draw W Range", true)
 RivenMenu.Draw:Boolean("DE", "Draw E Range", true)
 RivenMenu.Draw:Boolean("DR", "Draw R Range", true)
 
-RivenMenu:SubMenu("Escape", "Escape, Hold G")
+RivenMenu:SubMenu("Escape", "Escape")
 RivenMenu.Escape:Boolean("EQ", "Use Q", true)
 RivenMenu.Escape:Boolean("EE", "Use E", true)
 
@@ -93,6 +95,10 @@ RivenMenu:SubMenu("AGC", "Anti-GapCloser")
 RivenMenu.AGC:Boolean("AGCW", "Use W", true)
 
 RivenMenu:SubMenu("SkinChanger", "SkinChanger")
+
+RivenMenu:SubMenu("Keys", "Key Bindings")
+RivenMenu.Keys:KeyBinding("WJ", "WallJump", string.byte("T"))
+RivenMenu.Keys:KeyBinding("Escape", "Escape", string.byte("G"))
 
 local skinMeta = {["Riven"] = {"Classic", "Redeemed", "Crimson Elite", "Battle Bunny", "Championship", "Dragonblade", "Arcade"}}
 RivenMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
@@ -126,7 +132,7 @@ OnTick(function ()
 	
 		if RivenMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 600) then
 			if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
-				if Ready(_Q) then
+				if Ready(_Q) and GetCurrentHP(target) >= RivenMenu.Combo.RC:Value() or EnemiesAround(myHero, 700) > 1 then
 					CastSpell(_R)
 				end
 			end
@@ -208,7 +214,7 @@ OnTick(function ()
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 275) then
-				if GetCurrentHP(enemy) < WDmg(enemy) then
+				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < WDmg(enemy) then
 					CastSpell(_W)
 				end
 			end
@@ -216,7 +222,7 @@ OnTick(function ()
 
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSW:Value() and Ready(_W) and ValidTarget(enemy, 345) then
-				if GetCurrentHP(enemy) < WDmg(enemy) then
+				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < WDmg(enemy) then
 					CastSpell(_W)
 				end
 			end
@@ -224,7 +230,7 @@ OnTick(function ()
 		
 		if not GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 260) then
-				if GetCurrentHP(enemy) < QDmg(enemy) then
+				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < QDmg(enemy) then
 					CastSkillShot(_Q, enemy)
 				end
 			end
@@ -232,7 +238,7 @@ OnTick(function ()
 			
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, 335) then
-				if GetCurrentHP(enemy) < QDmg(enemy) then
+				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < QDmg(enemy) then
 					CastSkillShot(_Q, enemy)
 				end
 			end
@@ -240,7 +246,7 @@ OnTick(function ()
 
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
 			if RivenMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 900) then
-				if GetCurrentHP(enemy) < RDmg then
+				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < RDmg then
 					local RPred = GetConicAOEPrediction(enemy,RStats)
 					if RPred.hitChance >= 0.3 then
 						CastSkillShot(_R, RPred.castPos) 
@@ -283,7 +289,7 @@ OnTick(function ()
 	end
 
 	--Escape
-	if KeyIsDown(71) then 
+	if RivenMenu.Keys.Escape:Value() then
 		MoveToXYZ(GetMousePos())
 		if RivenMenu.Escape.EQ:Value() and Ready(_Q) then
 			CastSkillShot(_Q, GetMousePos())
@@ -310,21 +316,20 @@ OnTick(function ()
 	end	
 	
 	--WallJump
-	if RivenMenu.Misc.WJ:Value() then
-		if KeyIsDown(84) then
-			local movePos1  = GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 75
-			local movePos2 =  GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 450
-			if QCast < 2 and Ready(_Q) then
-				CastSkillShot(_Q, GetMousePos())
-			end
-			if not MapPosition:inWall(movePos1) then
-				MoveToXYZ(GetMousePos())
-				else
-				if not MapPosition:inWall(movePos2) and Ready(_Q) then
-					CastSkillShot(_Q, movePos2)
-				end	
-			end			
+	if RivenMenu.Keys.WJ:Value() then
+		local movePos1  = GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 75
+		local movePos2 =  GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 450
+		if QCast < 2 and Ready(_Q) then
+			CastSkillShot(_Q, GetMousePos())
 		end
+		
+		if not MapPosition:inWall(movePos1) then
+			MoveToXYZ(GetMousePos())
+			else
+			if not MapPosition:inWall(movePos2) and Ready(_Q) then
+				CastSkillShot(_Q, movePos2)
+			end				
+		end				
 	end
 
 	--Jungle Clear
@@ -341,6 +346,16 @@ OnTick(function ()
 			end
 		end
 	end
+	
+	--Auto R
+	for _, enemy in pairs(GetEnemyHeroes()) do
+		if RivenMenu.Misc.AR:Value() and EnemiesAround(enemy, 100) >= RivenMenu.Misc.ARC:Value() and Ready(_R) then
+			local RPred = GetConicAOEPrediction(enemy,RStats)
+			if RPred.hitChance >= 0.3 then
+				CastSkillShot(_R, RPred.castPos) 
+			end
+		end	
+	end
 end)
 
 OnDraw(function()
@@ -355,26 +370,6 @@ end)
 OnProcessSpell(function(unit, spell)
 	local target = GetCurrentTarget()
 	
-	if unit.isMe and spell.name:lower():find("riventricleave") then 
-		Mix:ResetAA()	
-	end
-	
-	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenizunablade") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenmartyr") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
-		Mix:ResetAA()
-	end	
-	
 	if RivenMenu.Combo.YGB:Value() and unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
 		if Mix:Mode() == "Combo" then
 			local YGB = GetItemSlot(myHero, 3142)
@@ -386,6 +381,14 @@ OnProcessSpell(function(unit, spell)
 		end
 	end
 
+	if GetTeam(unit) == 300 and spell.name:lower():find("attack") and spell.target.isMe then
+		if Mix:Mode() == "LaneClear" then
+			if RivenMenu.JungleClear.JCE:Value() and Ready(_E) then
+				CastSkillShot(_E, GetMousePos())
+			end
+		end	
+	end
+	
 	if RivenMenu.Combo.CH:Value() and unit.isMe and spell.name:lower():find("attack") then
 		if Mix:Mode() == "Combo" then
 			local RH = GetItemSlot(myHero, 3074)
@@ -404,14 +407,6 @@ OnProcessSpell(function(unit, spell)
 				if Ready(Tiamat) and ValidTarget(target, 350) then
 					CastSpell(Tiamat)
 				end
-			end
-		end	
-	end
-
-	if GetTeam(unit) == 300 and spell.name:lower():find("attack") and spell.target.isMe then
-		if Mix:Mode() == "LaneClear" then
-			if RivenMenu.JungleClear.JCE:Value() and Ready(_E) then
-				CastSkillShot(_E, GetMousePos())
 			end
 		end	
 	end
@@ -493,7 +488,33 @@ OnProcessSpellComplete(function(unit,spell)
 			end
 		end
 	end
-end)
+	
+	if unit.isMe and spell.name:lower():find("riventricleave") then 
+		Mix:ResetAA()	
+	end
+	
+	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("rivenizunablade") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("rivenmartyr") then
+		Mix:ResetAA()
+	end
+
+	if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
+		Mix:ResetAA()
+	end	
+	
+	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
+		DelayAction(function()
+			CastSkillShot(_R, target)	
+		end, 14.85)
+	end	
+end) 
 
 
 OnAnimation(function(unit,animation)
@@ -529,4 +550,4 @@ OnProcessWaypoint(function(unit, waypointProc)
 	end
 end)
 
-print("Thank You For Using Custom Riven, Have Fun :D")
+print("Thank You For Using Eternal Riven, Have Fun :D")
