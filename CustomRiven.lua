@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.12"
+local ver = "0.13"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -411,10 +411,6 @@ OnProcessSpell(function(unit, spell)
 		end	
 	end
 	
-	if unit.isMe and spell.name:lower():find("riventricleave") then 
-		Mix:ResetAA()	
-	end
-	
 	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
 		Mix:ResetAA()
 	end
@@ -521,7 +517,7 @@ OnCreateObj(function(object)
 	if object and GetObjectBaseName(object) and GetDistance(GetOrigin(object)) < 1000 then
 		if object.name:find("Riven_Base_Q_") and GetObjectBaseName(object):find("_detonate") and GetDistance(object) < 225 then
 			CastEmote(EMOTE_DANCE)
-			for delay = 15,(GetLatency()*2) do
+			for delay = 15,(GetLatency()*2.5) do
 				DelayAction(function()
 					Mix:ResetAA()
 				end, delay)
