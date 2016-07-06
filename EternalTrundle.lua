@@ -60,7 +60,7 @@ OnProcessSpellComplete(function(unit,spell)
 	if TrundleMenu.Combo.CQ:Value() and unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
 		if Mix:Mode() == "Combo" then
 			if Ready(_Q) then
-				CastTargetSpell(_Q, target)
+				CastSpell(_Q)
 				DelayAction(function()
 					AttackUnit(spell.target)
 				end, spell.windUpTime)
