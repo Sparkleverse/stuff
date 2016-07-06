@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.13"
+local ver = "0.14"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -68,6 +68,7 @@ RivenMenu.KillSteal:Boolean("KSW", "Use W", true)
 RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
+RivenMenu.Misc:Boolean("GSQ", "God Speed Q", true)
 RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
@@ -410,18 +411,6 @@ OnProcessSpell(function(unit, spell)
 			end
 		end	
 	end
-	
-	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenizunablade") then
-		Mix:ResetAA()
-	end
-
-	if unit.isMe and spell.name:lower():find("rivenmartyr") then
-		Mix:ResetAA()
-	end
 
 	if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
 		Mix:ResetAA()
@@ -514,13 +503,17 @@ end)
 
 
 OnCreateObj(function(object)
-	if object and GetObjectBaseName(object) and GetDistance(GetOrigin(object)) < 1000 then
-		if object.name:find("Riven_Base_Q_") and GetObjectBaseName(object):find("_detonate") and GetDistance(object) < 225 then
-			CastEmote(EMOTE_DANCE)
-			for delay = 15,(GetLatency()*2.5) do
-				DelayAction(function()
-					Mix:ResetAA()
-				end, delay)
+	if RivenMenu.Misc.GSQ:Value() then
+		if object and GetObjectBaseName(object) and GetOrigin(object) and GetDistance(object) < 1000 then
+			if GetObjectBaseName(object):find("Riven_Base_Q_") and GetObjectBaseName(object):find("_detonate") and GetDistance(object) < 225 then
+				if Mix:Mode() == "Combo" or	Mix:Mode() == "Harass" or Mix:Mode() == "LaneClear" then
+					CastEmote(EMOTE_DANCE)
+					for delay = 15,(GetLatency()*2.5) do
+						DelayAction(function()
+							Mix:ResetAA()
+						end, delay)
+					end	
+				end	
 			end
 		end
 	end
