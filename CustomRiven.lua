@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.14"
+local ver = "0.15"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -68,8 +68,11 @@ RivenMenu.KillSteal:Boolean("KSW", "Use W", true)
 RivenMenu.KillSteal:Boolean("KSR", "Use R", true)
 
 RivenMenu:SubMenu("Misc", "Misc")
+RivenMenu.Misc:SubMenu("AL", "Auto Level")
 RivenMenu.Misc:Boolean("GSQ", "God Speed Q", true)
-RivenMenu.Misc:Boolean("AutoLevel", "Auto Level")
+RivenMenu.Misc.AL:Boolean("UAL", "Use Auto Level", false)
+RivenMenu.Misc.AL:Boolean("ALQ", "R>Q>E>W", false)
+RivenMenu.Misc.AL:Boolean("ALE", "R>E>Q>W", false)
 RivenMenu.Misc:Boolean("AutoI", "Auto Ignite", true)
 RivenMenu.Misc:Boolean("AW", "Auto W", true)
 RivenMenu.Misc:Slider("AWC", "Min Enemies To Auto W",3,1,6,1)
@@ -82,6 +85,7 @@ RivenMenu.Draw:Boolean("DQ", "Draw Q Range", true)
 RivenMenu.Draw:Boolean("DW", "Draw W Range", true)
 RivenMenu.Draw:Boolean("DE", "Draw E Range", true)
 RivenMenu.Draw:Boolean("DR", "Draw R Range", true)
+RivenMenu.Draw:Boolean("DD", "Draw Damage", true)
 
 RivenMenu:SubMenu("Escape", "Escape")
 RivenMenu.Escape:Boolean("EQ", "Use Q", true)
@@ -93,6 +97,10 @@ RivenMenu.GC:Boolean("GCE", "Use E", true)
 
 RivenMenu:SubMenu("AGC", "Anti-GapCloser")
 RivenMenu.AGC:Boolean("AGCW", "Use W", true)
+
+RivenMenu:SubMenu("JCS", "Dragon and Baron Steal")
+RivenMenu.JCS:Boolean("JCSB", "Steal Baron", true)
+RivenMenu.JCS:Boolean("JCSD", "Steal Dragon", true)
 
 RivenMenu:SubMenu("SkinChanger", "SkinChanger")
 
@@ -107,6 +115,7 @@ RivenMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, mo
 function WDmg(unit) return CalcDamage(myHero,unit, 20 + 30 * GetCastLevel(myHero,_W) + GetBonusDmg(myHero) * 1, 0) end
 function QDmg(unit) return CalcDamage(myHero,unit, -10 + 20 * GetCastLevel(myHero,_Q) + (myHero.totalDamage) * ((35 + 5 * GetCastLevel(myHero, _Q)) * 0.01), 0) end
 function EShield(myHero) return (60 + 30 * GetCastLevel(myHero, _E) + GetBonusDmg(myHero)) end
+local RStats = {delay = 0.025, range = 1100, radius = 100, speed = 1600}
 local QCast = 0
 local target = GetCurrentTarget()
 
@@ -114,19 +123,25 @@ OnTick(function ()
 	
 	local mousePos = GetMousePos()
 	target = GetCurrentTarget()
-	local RStats = {delay = 0.025, range = 1100, radius = 100, speed = 1600}
 	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local RDmg = getdmg("R",target,myHero,GetCastLevel(myHero, _R))
 	local YGB = GetItemSlot(myHero, 3142)
 	local RHydra = GetItemSlot(myHero, 3074)
 	local Tiamat = GetItemSlot(myHero, 3077)
 	
-	if RivenMenu.Misc.AutoLevel:Value() then
+	if RivenMenu.Misc.AL.UAL:Value() and RivenMenu.Misc.AL.ALQ:Value() and not RivenMenu.Misc.AL.ALE:Value() then
 		spellorder = {_Q, _E, _W, _Q, _Q, _R, _Q, _E, _Q, _E, _R, _E, _E, _W, _W, _R, _W, _W}	
 		if GetLevelPoints(myHero) > 0 then
 			LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
 		end
 	end
+	
+	if RivenMenu.Misc.AL.UAL:Value() and RivenMenu.Misc.AL.ALE:Value() and not RivenMenu.Misc.AL.ALQ:Value() then
+		spellorder = {_E, _Q, _W, _E, _E, _R, _E, _Q, _E, _Q, _R, _Q, _Q, _W, _W, _R, _W, _W}
+		if GetLevelPoints(myHero) > 0 then
+			LevelSpell(spellorder[GetLevel(myHero) + 1 - GetLevelPoints(myHero)])
+		end
+	end	
 	
 	if Mix:Mode() == "Combo" then
 	
@@ -245,7 +260,7 @@ OnTick(function ()
 		end
 
 		if GetCastName(myHero, _R):lower():find("rivenizunablade") then
-			if RivenMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 900) then
+			if RivenMenu.KillSteal.KSR:Value() and Ready(_R) and ValidTarget(enemy, 900) and WindWall == nil then 
 				if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) < RDmg then
 					local RPred = GetConicAOEPrediction(enemy,RStats)
 					if RPred.hitChance >= 0.3 then
@@ -358,6 +373,36 @@ OnTick(function ()
 			end	
 		end
 	end	
+	
+	--Dragon and Baron Steal
+	if GetCastName(myHero, _R):lower():find("rivenizunablade") then
+		for i,camp in pairs(minionManager.objects) do
+			local RDragDmg = getdmg("R",camp,myHero,GetCastLevel(myHero, _R))
+			if RivenMenu.JCS.JCSB:Value() then
+				if GetTeam(camp) == 300 and IsObjectAlive(camp) then
+					if GetObjectName(camp) == "SRU_Baron" then
+						if Ready(_R) and ValidTarget(camp, 1000) then
+							if GetHealthPrediction(camp, (GetDistance(myHero, camp) / 1600)) < RDragDmg then
+								CastSkillShot(_R, camp)
+							end
+						end
+					end
+				end
+			end	
+			
+			if RivenMenu.JCS.JCSD:Value() then
+				if GetTeam(camp) == 300 and IsObjectAlive(camp) then
+					if GetObjectName(camp):lower():find("sru_dragon") then
+						if Ready(_R) and ValidTarget(camp, 1000) then
+							if GetHealthPrediction(camp, (GetDistance(myHero, camp) / 1600)) < RDragDmg then
+								CastSkillShot(_R, camp)
+							end
+						end
+					end
+				end		
+			end
+		end	
+	end
 end)
 
 OnDraw(function()
@@ -367,6 +412,19 @@ OnDraw(function()
 	if RivenMenu.Draw.DW:Value() then DrawCircle(pos, 275, 1, 25, GoS.Blue) end
 	if RivenMenu.Draw.DE:Value() then DrawCircle(pos, 325, 1, 25, GoS.Yellow) end
 	if RivenMenu.Draw.DR:Value() then DrawCircle(pos, 900, 1, 25, GoS.Cyan) end
+	
+	for _, enemy in pairs(GetEnemyHeroes()) do
+		local RRDmg = getdmg("R",enemy,myHero,GetCastLevel(myHero, _R))
+		if RivenMenu.Draw.DD:Value() and Ready(_Q) and Ready(_W) and Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), QDmg(enemy) * 3 + (WDmg(enemy)) + (RRDmg), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_W) and Ready(_Q) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + (QDmg(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_Q) and not Ready(_W) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), (QDmg(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_R) and not Ready(_W) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg, 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_Q) and Ready(_W) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), (QDmg(enemy) * 3) + (WDmg(enemy)), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_W) and not Ready(_Q) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_W) and Ready(_R) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + RRDmg, 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_R) and Ready(_Q) and not Ready(_W) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + (QDmg(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_R) and Ready(_W) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + WDmg(enemy), 0, GoS.White) end
+	end
 end)	
 
 OnProcessSpell(function(unit, spell)
@@ -496,7 +554,9 @@ OnProcessSpellComplete(function(unit,spell)
 	
 	if unit.isMe and spell.name:lower():find("rivenfengshuiengine") then
 		DelayAction(function()
-			CastSkillShot(_R, target)	
+			if WindWall == nil then
+				CastSkillShot(_R, target)
+			end		
 		end, 14.85)
 	end	
 end) 
@@ -517,7 +577,17 @@ OnCreateObj(function(object)
 			end
 		end
 	end
+	
+	if object.isSpell and object.spellName:lower():find("yasuowmovingwallmisl") and object.spellOwner.team == 300 - GetTeam(myHero) then
+        WindWall = object
+    end
 end)
+
+OnDeleteObj(function(object)
+	if object.isSpell and object.spellName:lower():find("yasuowmovingwallmisl") and object.spellOwner.team == 300 - GetTeam(myHero) then
+        WindWall = nil
+	end
+end)	
 
 OnUpdateBuff(function(unit,buff)
 	if unit.isMe and buff.Name:lower():find("riventricleave") then 
