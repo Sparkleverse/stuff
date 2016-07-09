@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Riven" then return end
 
-local ver = "0.16"
+local ver = "0.17"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -107,6 +107,7 @@ RivenMenu:SubMenu("SkinChanger", "SkinChanger")
 RivenMenu:SubMenu("Keys", "Key Bindings")
 RivenMenu.Keys:KeyBinding("WJ", "WallJump", string.byte("T"))
 RivenMenu.Keys:KeyBinding("Escape", "Escape", string.byte("G"))
+RivenMenu.Keys:KeyBinding("JCS", "Baron and Dragon Steal", string.byte("Z"))
 
 local skinMeta = {["Riven"] = {"Classic", "Redeemed", "Crimson Elite", "Battle Bunny", "Championship", "Dragonblade", "Arcade"}}
 RivenMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
@@ -120,9 +121,11 @@ local RStats = {delay = 0.025, range = 1100, radius = 100, speed = 1600}
 local QCast = 0
 local target = GetCurrentTarget()
 local UltOn = GetCastName(myHero, _R):lower():find("rivenizunablade")
+local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
 
 OnTick(function ()
 	
+	local movePos = GetPrediction(target,Move).castPos
 	local mousePos = GetMousePos()
 	target = GetCurrentTarget()
 	local IDamage = (50 + (20 * GetLevel(myHero)))
@@ -271,14 +274,14 @@ OnTick(function ()
 	end		
 	
 	--GapClose
-	if Mix:Mode() == "Combo" then
+	if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
 		if GetDistance(myHero, target) < 700 and GetDistance(myHero, target) > 300 then
 			if RivenMenu.GC.GCE:Value() and Ready(_E) then
 				CastSkillShot(_E, target) 
 			end
 		end
 		
-		if GetDistance(myHero, target) < 700 and GetDistance(myHero, target) > 300 then
+		if GetDistance(myHero, target) < 700 and GetDistance(myHero, target) > 300 and GetDistance(movePos) > GetDistance(target) then
 			if RivenMenu.GC.GCQ:Value() and Ready(_Q) then
 				CastSkillShot(_Q, target)
 			end
@@ -320,7 +323,8 @@ OnTick(function ()
 	end	
 	
 	--Dragon and Baron Steal
-	if UltOn and Ready(_R) then
+	if RivenMenu.Keys.JCS:Value() and UltOn and Ready(_R) then
+		MoveToXYZ(GetMousePos())
 		for _, camp in pairs(minionManager.objects) do
 			local RDragDmg = getdmg("R",camp,myHero,GetCastLevel(myHero, _R))
 			if RivenMenu.JCS.JCSB:Value() and GetTeam(camp) == 300 and IsObjectAlive(camp) and GetObjectName(camp) == "SRU_Baron" and ValidTarget(camp, 1100) then
@@ -349,14 +353,14 @@ OnDraw(function()
 	for _, enemy in pairs(GetEnemyHeroes()) do
 		local RRDmg = getdmg("R",enemy,myHero,GetCastLevel(myHero, _R))
 		if RivenMenu.Draw.DD:Value() and Ready(_Q) and Ready(_W) and Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), QDmg(enemy) * 3 + (WDmg(enemy)) + (RRDmg) + (AAB(enemy) * 3), 0, GoS.White) end
-		if RivenMenu.Draw.DD:Value() and Ready(_W) and Ready(_Q) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + (QDmg(enemy) * 3) + (AAB(enemy) * 3), 0, GoS.White) end
-		if RivenMenu.Draw.DD:Value() and Ready(_Q) and not Ready(_W) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), (QDmg(enemy) * 3) + (AAB(enemy) * 3), 0, GoS.White) end
-		if RivenMenu.Draw.DD:Value() and Ready(_R) and not Ready(_W) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + (AAB(enemy) * 3), 0, GoS.White) end
 		if RivenMenu.Draw.DD:Value() and Ready(_Q) and Ready(_W) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), (QDmg(enemy) * 3) + (WDmg(enemy)) + (AAB(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_Q) and not Ready(_W) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), (QDmg(enemy) * 3) + (AAB(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_W) and Ready(_Q) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + (QDmg(enemy) * 3) + (AAB(enemy) * 3), 0, GoS.White) end		
 		if RivenMenu.Draw.DD:Value() and Ready(_W) and not Ready(_Q) and not Ready(_R) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + (AAB(enemy) * 3), 0, GoS.White) end
 		if RivenMenu.Draw.DD:Value() and Ready(_W) and Ready(_R) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), WDmg(enemy) + RRDmg + (AAB(enemy) * 3), 0, GoS.White) end
 		if RivenMenu.Draw.DD:Value() and Ready(_R) and Ready(_Q) and not Ready(_W) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + (QDmg(enemy) * 3) + (AAB(enemy) * 3), 0, GoS.White) end
 		if RivenMenu.Draw.DD:Value() and Ready(_R) and Ready(_W) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + WDmg(enemy) + (AAB(enemy) * 3), 0, GoS.White) end
+		if RivenMenu.Draw.DD:Value() and Ready(_R) and not Ready(_W) and not Ready(_Q) then DrawDmgOverHpBar(enemy, GetCurrentHP(enemy), RRDmg + (AAB(enemy) * 3), 0, GoS.White) end
 	end
 end)	
 
@@ -500,7 +504,7 @@ OnProcessWaypoint(function(unit, waypointProc)
 			if GetDistance(myHero, dashTargetPos) < GetCastRange(myHero, _W) and Ready(_W) then
 				DelayAction(function()
 					CastSpell(_W)
-				end, (GetDistance(myHero, unit) / waypointProc.dashspeed) - 0.2)	
+				end, (GetDistance(myHero, unit) / waypointProc.dashspeed) - 0.267)	
 			end	
 		end
 	end
