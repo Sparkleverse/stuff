@@ -219,7 +219,7 @@ OnTick(function()
 --Harass	
 	if Mix:Mode() == "Harass" then
 			
-		if EzrealMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and Mix.isWindingUp then
+		if EzrealMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and not Mix.isWindingUp then
 			if GetPercentMP(myHero) >= EzrealMenu.Harass.HMM:Value() then
 				local QPredH = GetPrediction(target, QStats)
 				if QPred.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) and not QPredH:mCollision(1) then
@@ -370,6 +370,10 @@ end)
 local spawn = nil
 local arrivalTime = nil
 local baseUnit = nil
+local reduction = (1-(0.1 * CountObjectsOnLineSegment(GetOrigin(myHero), spawn, 160, minionManager.objects)))
+		if reduction < 0.7 then
+			reduction = 0.7
+		end	
 
 OnObjectLoad(function(object)
     if object.type == Obj_AI_SpawnPoint and object.team == 300 - myHero.team then
@@ -392,13 +396,13 @@ OnDraw(function()
 	if EzrealMenu.Misc.BaseUlt:Value() and arrivalTime then
 		local rTime = GetDistance(baseUnit.pos,spawn.pos)/2000+1
 		if arrivalTime-rTime-GetGameTimer()-GetLatency()*.001 < 0 then
-			if GetCurrentHP(baseUnit) <= RDmg(baseUnit) then
+			if GetCurrentHP(baseUnit) <= (RDmg(baseUnit) * reduction)  then
 				CastSkillShot(_R,spawn.pos)
 				arrivalTime = nil
 				baseUnit = nil
 			end	
 		end
-    	end
+	 end
 end)
 
 OnProcessSpell(function(unit, spell)
