@@ -386,7 +386,6 @@ OnProcessRecall(function(unit, recall)
 				arrivalTime = nil
 			end
 		end
-	end
 end)
 
 OnDraw(function()
