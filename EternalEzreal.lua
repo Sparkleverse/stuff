@@ -44,11 +44,6 @@ EzrealMenu.Harass:Boolean("HQ", "Use Q", true)
 EzrealMenu.Harass:Boolean("HW", "Use W", true)
 EzrealMenu.Harass:Slider("HMM", "Min Mana To Harass",50,0,100,1)
 
-EzrealMenu:SubMenu("AH", "AutoHarass")
-EzrealMenu.AH:Boolean("AHQ", "Use Q", true)
-EzrealMenu.AH:Boolean("AHW", "Use W", true)
-EzrealMenu.AH:Slider("AHMM", "Min Mana To Auto Harass",50,0,100,1)
-
 EzrealMenu:SubMenu("LaneClear", "LaneClear", true)
 EzrealMenu.LaneClear:Boolean("LCQ", "Use Q", true)
 EzrealMenu.LaneClear:Boolean("LCR", "Use R", true)
@@ -65,8 +60,6 @@ EzrealMenu.KillSteal:Boolean("KSR", "Use R", true)
 EzrealMenu.KillSteal:Slider("KSRC", "Distance To KS R",3000,1,100000,1000)
 
 EzrealMenu:SubMenu("Misc", "Misc")
-EzrealMenu.Misc:Boolean("STear", "Auto Stack Tear", true)
-EzrealMenu.Misc:Slider("STearC", "Min Mana To Stack",50,0,100,1)
 EzrealMenu.Misc:Boolean("QSS", "Auto QSS", true)
 EzrealMenu.Misc:Slider("RC", "Range For R", 4000,100,100000,100)
 EzrealMenu.Misc:SubMenu("AL", "Auto Level")
@@ -96,6 +89,7 @@ EzrealMenu.Evade:Boolean("EE", "Use E", true)
 EzrealMenu.Evade:Boolean("EA", "Annie R", true)
 EzrealMenu.Evade:Boolean("EM", "Malphite R", true)
 EzrealMenu.Evade:Boolean("ES", "Sona R", true)
+EzrealMenu.Evade:Boolean("EO", "Oriana R", true)
 
 EzrealMenu:SubMenu("JCS", "Dragon and Baron Steal")
 EzrealMenu.JCS:Boolean("JCS", "Steal Baron and Dragon", true)
@@ -355,50 +349,10 @@ OnTick(function()
 			end
 		end
 	end
-
---Tear Auto Stack
-	if EzrealMenu.Misc.STear:Value() and Tear > 0 or Manamune > 0 or ArcStaff > 0 then
-		if GetPercentMP(myHero) >= EzrealMenu.Misc.STearC:Value() and Ready(_Q) then
-			if Ready(Tear) or Ready(Manamune) or Ready(ArcStaff) and not Mix:Mode() == "Combo" and not Mix:Mode() == "LaneClear" and not Mix:Mode() == "LastHit" and not Mix:Mode() == "Harass" then
-				for _, closeminion in pairs(minionManager.objects) do
-					if ValidTarget(closeminion, 3000) then
-						CastSkillShot(_Q, closeminion)
-					end	
-				end
-			end
-		end
-	end	
-	
-	if EzrealMenu.Misc.STear:Value() and Tear > 0 or Manamune > 0 or ArcStaff > 0 then
-		if GetPercentMP(myHero) >= EzrealMenu.Misc.STearC:Value() and not Ready(_Q) and not Mix:Mode() == "Combo" and not Mix:Mode() == "LaneClear" and not Mix:Mode() == "LastHit" and not Mix:Mode() == "Harass" then
-			if Ready(Tear) or Ready(Manamune) or Ready(ArcStaff) then
-				CastSkillShot(_W, target)
-			end	
-		end
-	end	
-	
---Auto Harass
-	if EzrealMenu.AH.AHQ:Value() and Ready(_Q) and ValidTarget(target, 1200) then
-		if GetPercentMP(myHero) >= EzrealMenu.AH.AHMM:Value() and not Mix:Mode() == "Combo" and not Mix:Mode() == "LaneClear" and not Mix:Mode() == "LastHit" and not Mix:Mode() == "Harass" then
-			local QPredAH = GetPrediction(target, QStats)
-			if QPredAH.hitChance >= 0.5 and QPredAH.mCollision(1) then
-				CastSkillShot(_Q, QPredAH.castPos)
-			end
-		end
-	end	
-
-	if EzrealMenu.AH.AHW:Value() and Ready(_W) and ValidTarget(target, 1050) then
-		if GetPercentMP(myHero) >= EzrealMenu.AH.AHMM:Value() and not Mix:Mode() == "Combo" and not Mix:Mode() == "LaneClear" and not Mix:Mode() == "LastHit" and not Mix:Mode() == "Harass" then
-			local WPredAH = GetLinearAOEPrediction(target, WStats)
-			if WPredAH.hitChance >= 0.5 then
-				CastSkillShot(_W, WPredAH.castPos)
-			end
-		end	
-	end	
 end)	
 
 OnUpdateBuff(function(unit, buff)
-	if unit.isMe and CCType[buff.Type] and EzrealMenu.Misc.QSS:Value() and QSS > 0 and Ready(QSS) then
+	if unit.isMe and buff.Type == CCType and EzrealMenu.Misc.QSS:Value() and QSS > 0 and Ready(QSS) then
 		if GetPercentHP(myHero) <= 85 and EnemiesAround(myHero, 900) >= 1 then
 			CastSpell(QSS)
 		end	
@@ -424,27 +378,28 @@ OnObjectLoad(function(object)
 end)
 
 OnProcessRecall(function(unit, recall)
-    if recall.name ~= "recall" then return end
-	if unit.team == 300 - GetTeam(myHero) then
-		arrivalTime = GetGameTimer() + (recall.totalTime - recall.passedTime)*.001
-		baseUnit = unit
-		if recall.both then 
-			arrivalTime = nil
+	if recall.name ~= "recall" then return end
+		if unit.team == 300 - GetTeam(myHero) then
+			arrivalTime = GetGameTimer() + (recall.totalTime - recall.passedTime)*.001
+			baseUnit = unit
+			if recall.both then 
+				arrivalTime = nil
+			end
 		end
-	end	
+	end
 end)
 
 OnDraw(function()
-    if EzrealMenu.Misc.BaseUlt:Value() and arrivalTime then
-        local rTime = GetDistance(baseUnit.pos,spawn.pos)/2000+1
-        if arrivalTime-rTime-GetGameTimer()-GetLatency()*.001 < 0 then
+	if EzrealMenu.Misc.BaseUlt:Value() and arrivalTime then
+		local rTime = GetDistance(baseUnit.pos,spawn.pos)/2000+1
+		if arrivalTime-rTime-GetGameTimer()-GetLatency()*.001 < 0 then
 			if GetCurrentHP(baseUnit) <= RDmg(baseUnit) then
 				CastSkillShot(_R,spawn.pos)
 				arrivalTime = nil
 				baseUnit = nil
 			end	
-        end
-    end
+		end
+    	end
 end)
 
 OnProcessSpell(function(unit, spell)
