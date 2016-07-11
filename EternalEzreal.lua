@@ -1,6 +1,6 @@
 if GetObjectName(myHero) ~= "Ezreal" then return end
 
-local ver = "0.01"
+local ver = "0.02"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -23,6 +23,13 @@ end
 
 GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalEzreal.version", AutoUpdate)
 
+if FileExist(COMMON_PATH.."Draw.lua") then
+	require ("Draw")
+else
+print("draw.lua not found please wait for download")
+DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/draw.lua", COMMON_PATH .."Draw.lua", function() print("Draw.lua Downloaded, Please 2x F6") return end)
+end	
+
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
 else
@@ -44,6 +51,11 @@ EzrealMenu.Harass:Boolean("HQ", "Use Q", true)
 EzrealMenu.Harass:Boolean("HW", "Use W", true)
 EzrealMenu.Harass:Slider("HMM", "Min Mana To Harass",50,0,100,1)
 
+EzrealMenu:SubMenu("AH", "Auto Harass")
+EzrealMenu.AH:Boolean("AHQ", "Use Q", true)
+EzrealMenu.AH:Boolean("AHW", "Use W", true)
+EzrealMenu.AH:Slider("AHC", "Min Mana To Auto Harass",60,0,100,1)
+
 EzrealMenu:SubMenu("LaneClear", "LaneClear", true)
 EzrealMenu.LaneClear:Boolean("LCQ", "Use Q", true)
 EzrealMenu.LaneClear:Boolean("LCR", "Use R", true)
@@ -61,6 +73,8 @@ EzrealMenu.KillSteal:Slider("KSRC", "Distance To KS R",3000,1,100000,1000)
 
 EzrealMenu:SubMenu("Misc", "Misc")
 EzrealMenu.Misc:Boolean("QSS", "Auto QSS", true)
+EzrealMenu.Misc:Boolean("TearS", "Auto Stack Tear", true)
+EzrealMenu.Misc:Slider("TearC", "Min Mana To Stack",70,0,100,1)
 EzrealMenu.Misc:Slider("RC", "Range For R", 4000,100,100000,100)
 EzrealMenu.Misc:SubMenu("AL", "Auto Level")
 EzrealMenu.Misc.AL:Boolean("UAL", "Use Auto Level", false)
@@ -90,6 +104,7 @@ EzrealMenu.Evade:Boolean("EA", "Annie R", true)
 EzrealMenu.Evade:Boolean("EM", "Malphite R", true)
 EzrealMenu.Evade:Boolean("ES", "Sona R", true)
 EzrealMenu.Evade:Boolean("EO", "Oriana R", true)
+EzrealMenu.Evade:Boolean("EL", "Leona R", true)
 
 EzrealMenu:SubMenu("JCS", "Dragon and Baron Steal")
 EzrealMenu.JCS:Boolean("JCS", "Steal Baron and Dragon", true)
@@ -111,18 +126,22 @@ local WStats = {delay = 0.25, range = 1050, radius = 80, speed = 1600}
 local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
 local EvadeSpot = nil
 local CCType = {[5] = "Stun", [7] = "Silence", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
+local nextAttack = 0
+local QSS = nil
+local MercSkimm = nil
 
 OnTick(function()
 
 	target = GetCurrentTarget()
-	EvadeSpot = myHero.pos + (target.pos - myHero.pos):normalized() * -425
+	EvadeSpot = myHero.pos + (GetMousePos() - myHero.pos):normalized() * 425
 	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local BORK = GetItemSlot(myHero, 3153)
 	local Bilge = GetItemSlot(myHero, 3144)
 	local Tear = GetItemSlot(myHero, 3070)
 	local Manamune = GetItemSlot(myHero, 3004)
 	local ArcStaff = GetItemSlot(myHero, 3003)
-	local QSS = GetItemSlot(myHero, 3140)
+	QSS = GetItemSlot(myHero, 3140)
+	MercSkimm = GetItemSlot(myHero, 3139)
 	local movePos = GetPrediction(target,Move).castPos
 		
 --AutoLevel	
@@ -164,7 +183,7 @@ OnTick(function()
 --Combo	
 	if Mix:Mode() == "Combo" then
 		
-		if EzrealMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and not Mix.isWindingUp then
+		if EzrealMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and GetTickCount() > nextAttack then
 			if GetPercentMP(myHero) >= EzrealMenu.Combo.CMM:Value() then
 				local QPred = GetPrediction(target, QStats)
 				if QPred.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) and not QPred:mCollision(1) then
@@ -173,7 +192,7 @@ OnTick(function()
 			end
 		end
 
-		if EzrealMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 1050) and not Mix.isWindingUp then
+		if EzrealMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, 1050) and GetTickCount() > nextAttack then
 			if GetPercentMP(myHero) >= EzrealMenu.Combo.CMM:Value() then
 				local WPred = GetLinearAOEPrediction(target, WStats)
 				if WPred.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) then
@@ -219,16 +238,16 @@ OnTick(function()
 --Harass	
 	if Mix:Mode() == "Harass" then
 			
-		if EzrealMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and not Mix.isWindingUp then
+		if EzrealMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 1200) and GetTickCount() > nextAttack then
 			if GetPercentMP(myHero) >= EzrealMenu.Harass.HMM:Value() then
 				local QPredH = GetPrediction(target, QStats)
-				if QPred.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) and not QPredH:mCollision(1) then
+				if QPredH.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) and not QPredH:mCollision(1) then
 					CastSkillShot(_Q, QPredH.castPos)
 				end
 			end
 		end
 			
-		if EzrealMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(target, 1050) and not Mix.isWindingUp then
+		if EzrealMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(target, 1050) and GetTickCount() > nextAttack then
 			if GetPercentMP(myHero) >= EzrealMenu.Harass.HMM:Value() then
 				local WPredH = GetLinearAOEPrediction(target, WStats)
 				if WPredH.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) then
@@ -242,7 +261,7 @@ OnTick(function()
 	if Mix:Mode() == "LaneClear" then
 		
 		for _, closeminion in pairs(minionManager.objects) do
-			if EzrealMenu.LaneClear.LCQ:Value() and ValidTarget(closeminion, 1200) and not Mix.isWindingUp then
+			if EzrealMenu.LaneClear.LCQ:Value() and ValidTarget(closeminion, 1200) and GetTickCount() > nextAttack then
 				if GetPercentMP(myHero) >= EzrealMenu.LaneClear.LCMM:Value() then
 					CastSkillShot(_Q, closeminion)
 				end
@@ -264,7 +283,7 @@ OnTick(function()
 	if Mix:Mode() == "LastHit" then
 		
 		for _, closeminion in pairs(minionManager.objects) do
-			if EzrealMenu.LastHit.LHQ:Value() and ValidTarget(closeminion, 1200) and GetDistance(myHero, closeminion) > 550 or Mix.isWindingDown then
+			if EzrealMenu.LastHit.LHQ:Value() and ValidTarget(closeminion, 1200) and GetDistance(myHero, closeminion) > 550 then
 				if GetCurrentHP(closeminion) <= QDmg(closeminion) then
 					local QPredLH = GetPrediction(closeminion, QStats)
 					if QPredLH.hitChance >= (EzrealMenu.Prediction.Q:Value() * 0.01) and not QPredLH:mCollision(1) and not QPredLH:hCollision(1) then
@@ -303,10 +322,8 @@ OnTick(function()
 				end
 			end
 		end
-	end	
 
 --Auto R
-	for _, enemy in pairs(GetEnemyHeroes()) do	
 		if EzrealMenu.Misc.AR:Value() and Ready(_R) and ValidTarget(enemy, 20000) then
 			local RPredAR = GetLinearAOEPrediction(enemy, RStats)
 			local EndPos = GetOrigin(myHero) + (VectorWay(GetOrigin(myHero),RPredAR.castPos)/GetDistance(myHero,RPredAR.castPos)) * EzrealMenu.Misc.RC:Value()
@@ -316,10 +333,8 @@ OnTick(function()
 				end
 			end
 		end
-	end	
 	
 --Auto Ignite 
-	for _, enemy in pairs(GetEnemyHeroes()) do
 		if GetCastName(myHero, SUMMONER_1):lower():find("summonerdot") then
 			if EzrealMenu.Misc.AI:Value() and Ready(SUMMONER_1) and ValidTarget(enemy, 600) then
 				if GetCurrentHP(enemy) < IDamage then
@@ -335,7 +350,7 @@ OnTick(function()
 				end
 			end
 		end
-	end
+	end	
 	
 --Baron/Dragon Steal
 	if EzrealMenu.JCS.DBS:Value() and EzrealMenu.JCS.JCS:Value() then
@@ -349,31 +364,114 @@ OnTick(function()
 			end
 		end
 	end
-end)	
+	
+--Auto Harass
+	if EzrealMenu.AH.AHQ:Value() and Ready(_Q) and ValidTarget(target, 1200) then
+		if GetPercentMP(myHero) >= EzrealMenu.AH.AHC:Value() then
+			if Mix:Mode() ~= "Combo" and Mix:Mode() ~= "Harass" and Mix:Mode() ~= "LaneClear" and Mix:Mode() ~= "LastHit" then
+				local QPredAH = GetPrediction(target, QStats)
+				if QPredAH.hitChance >= 0.3 and QPredAH:mCollision(1) then
+					CastSkillShot(_Q, QPredAH.castPos)
+				end
+			end
+		end
+	end
+
+	if EzrealMenu.AH.AHW:Value() and Ready(_W) and ValidTarget(target, 1050) then
+		if GetPercentMP(myHero) >= EzrealMenu.AH.AHC:Value() then
+			if Mix:Mode() ~= "Combo" and Mix:Mode() ~= "Harass" and Mix:Mode() ~= "LaneClear" and Mix:Mode() ~= "LastHit" then
+				local WPredAH = GetLinearAOEPrediction(target, WStats)
+				if WPredAH.hitChance >= 0.3 then
+					CastSkillShot(_W, WPredAH.castPos)
+				end
+			end
+		end
+	end	
+	
+--Auto Stack Tear
+	if EzrealMenu.Misc.TearS:Value() then
+		if GetPercentMP(myHero) >= EzrealMenu.Misc.TearC:Value() and GetDistance(myHero, target) > 1200 then
+			if Tear > 0 and CanUseSpell(myHero, Tear) ~= ON_COOLDOWN then
+				if Mix:Mode() ~= "Combo" and Mix:Mode() ~= "Harass" and Mix:Mode() ~= "LastHit" then
+					for _, closeminion in pairs(minionManager.objects) do
+						if Ready(_Q) and ValidTarget(closeminion, 1200) then
+							CastSkillShot(_Q, closeminion)
+						end
+					end		
+				end	
+			end			
+		end
+	end	
+	
+	if EzrealMenu.Misc.TearS:Value() then
+		if GetPercentMP(myHero) >= EzrealMenu.Misc.TearC:Value() and GetDistance(myHero, target) > 1200 then
+			if Manamune > 0 and CanUseSpell(myHero, Manamune) ~= ON_COOLDOWN then
+				if Mix:Mode() ~= "Combo" and Mix:Mode() ~= "Harass" and Mix:Mode() ~= "LastHit" then
+					for _, closeminion in pairs(minionManager.objects) do
+						if Ready(_Q) and ValidTarget(closeminion, 1200) then
+							CastSkillShot(_Q, closeminion)
+						end
+					end		
+				end	
+			end			
+		end
+	end
+
+	if EzrealMenu.Misc.TearS:Value() then
+		if GetPercentMP(myHero) >= EzrealMenu.Misc.TearC:Value() and GetDistance(myHero, target) > 1200 then
+			if ArcStaff > 0 and CanUseSpell(myHero, ArcStaff) ~= ON_COOLDOWN then
+				if Mix:Mode() ~= "Combo" and Mix:Mode() ~= "Harass" and Mix:Mode() ~= "LastHit" then
+					for _, closeminion in pairs(minionManager.objects) do
+						if Ready(_Q) and ValidTarget(closeminion, 1200) then
+							CastSkillShot(_Q, closeminion)
+						end
+					end		
+				end	
+			end			
+		end
+	end		
+end)			
 
 OnUpdateBuff(function(unit, buff)
-	if unit.isMe and buff.Type == CCType and EzrealMenu.Misc.QSS:Value() and QSS > 0 and Ready(QSS) then
-		if GetPercentHP(myHero) <= 85 and EnemiesAround(myHero, 900) >= 1 then
+	if unit.isMe and CCType[buff.Type] and EzrealMenu.Misc.QSS:Value() and QSS > 0 and Ready(QSS) then
+		if GetPercentHP(myHero) <= 90 and EnemiesAround(myHero, 900) >= 1 then
 			CastSpell(QSS)
 		end	
 	end
+	
+	if unit.isMe and CCType[buff.Type] and EzrealMenu.Misc.QSS:Value() and MercSkimm > 0 and Ready(MercSkimm) then
+		if GetPercentHP(myHero) <= 90 and EnemiesAround(myHero, 900) >= 1 then
+			CastSpell(MercSkimm)
+		end
+	end	
 end)
-
-OnDraw(function()
-	local pos = GetOrigin(myHero)
-	if EzrealMenu.Draw.DQ:Value() then DrawCircle(pos, 1200, 1, 25, GoS.Red) end
-	if EzrealMenu.Draw.DW:Value() then DrawCircle(pos, 1050, 1, 25, GoS.Blue) end
-	if EzrealMenu.Draw.DAA:Value() then DrawCircle(pos, 550, 1, 25, GoS.White) end
-	if EzrealMenu.Draw.DE:Value() then DrawCircle(pos, 475, 1, 25, GoS.Green) end
-end)	
 
 local spawn = nil
 local arrivalTime = nil
 local baseUnit = nil
 local reduction = (1-(0.1 * CountObjectsOnLineSegment(GetOrigin(myHero), spawn, 160, minionManager.objects)))
-		if reduction < 0.7 then
-			reduction = 0.7
+		if reduction < 0.3 then
+			reduction = 0.3
 		end	
+
+OnDraw(function()
+	local pos = GetOrigin(myHero)
+	if EzrealMenu.Draw.DQ:Value() then DrawCircle(pos, 1200, 1, 25, GoS.Red) end
+	if EzrealMenu.Draw.DW:Value() then DrawCircle(pos, 1050, 1, 25, GoS.Blue) end
+	if EzrealMenu.Draw.DAA:Value() then DrawCircle(pos, 550 + GetHitBox(myHero), 1, 25, GoS.White) end
+	if EzrealMenu.Draw.DE:Value() then DrawCircle(pos, 475, 1, 25, GoS.Green) end
+	
+	if EzrealMenu.Misc.BaseUlt:Value() and arrivalTime ~= nil then
+		local rTime = GetDistance(baseUnit.pos,spawn.pos)/2000+1
+		if arrivalTime-rTime-GetGameTimer()-GetLatency()*.001 < 0 then
+			if GetCurrentHP(baseUnit) < (RDmg(baseUnit) * reduction)  then
+				CastSkillShot(_R,spawn.pos)
+				arrivalTime = nil
+				baseUnit = nil
+			end	
+		end
+	end	
+end)	
 
 OnObjectLoad(function(object)
     if object.type == Obj_AI_SpawnPoint and object.team == 300 - myHero.team then
@@ -386,23 +484,10 @@ OnProcessRecall(function(unit, recall)
 		if unit.team == 300 - GetTeam(myHero) then
 			arrivalTime = GetGameTimer() + (recall.totalTime - recall.passedTime)*.001
 			baseUnit = unit
-			if recall.both then 
-				arrivalTime = nil
-			end
-		end
-end)
-
-OnDraw(function()
-	if EzrealMenu.Misc.BaseUlt:Value() and arrivalTime then
-		local rTime = GetDistance(baseUnit.pos,spawn.pos)/2000+1
-		if arrivalTime-rTime-GetGameTimer()-GetLatency()*.001 < 0 then
-			if GetCurrentHP(baseUnit) <= (RDmg(baseUnit) * reduction)  then
-				CastSkillShot(_R,spawn.pos)
-				arrivalTime = nil
-				baseUnit = nil
-			end	
-		end
-	 end
+				if arrivalTime > recall.totalTime + GetGameTimer() then
+					arrivalTime = nil
+				end
+		end		
 end)
 
 OnProcessSpell(function(unit, spell)
@@ -428,8 +513,18 @@ OnProcessSpell(function(unit, spell)
 		if EzrealMenu.Evade.EO:Value() and GetDistance(myHero, spell.endPos) < 410 and Ready(_E) then
 			CastSkillShot(_E, EvadeSpot)
 		end
-	end		
-end)
+	end	
+
+	if unit.team ~= GetTeam(myHero) and spell.name:lower():find("leonasolarflare") then
+		if EzrealMenu.Evade.EL:Value() and GetDistance(myHero, spell.endPos) < 300 and Ready(_E) then
+			CastSkillShot(_E, EvadeSpot)
+		end
+	end	
+
+	if unit.isMe and spell.name:lower():find("attack") then
+		nextAttack = GetTickCount() + spell.windUpTime * 1000
+	end	
+end)	
 
 function VectorWay(A,B)
 WayX = B.x - A.x
