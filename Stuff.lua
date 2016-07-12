@@ -11,7 +11,7 @@ MainMenu:DropDown("C", "Choose ur combo", 1 ,{"aa-q-w-e", "aa-w-e-q"})
 
 OnTick(function(myHero)
 if target ~= nil then
-if Combo then
+  if Combo then
 if MainMenu.C:Value() == 1 then
 if Ready(0) and ValidTarget(target, 550) then
 CastTargetSpell(target, 0)
