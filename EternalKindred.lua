@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Kindred" then return end
 
-local ver = "0.02"
+local ver = "0.03"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -112,7 +112,6 @@ local WRange = GetCastRange(myHero, _W) + GetHitBox(myHero)
 local ERange = GetCastRange(myHero, _E) + GetHitBox(myHero)
 local QRange = GetCastRange(myHero, _Q) + GetHitBox(myHero)
 local RRange = GetCastRange(myHero, _R) + GetHitBox(myHero)
-local smd = 0
 
 OnTick(function()
 
@@ -125,7 +124,7 @@ OnTick(function()
 	mark = GetBuffData(myHero, "kindredmarkofthekindredstackcounter").Stacks
 	QSS = GetItemSlot(myHero, 3140)
 	MercSkimm = GetItemSlot(myHero, 3139)
-	smd = (({[1]=390,[2]=410,[3]=430,[4]=450,[5]=480,[6]=510,[7]=540,[8]=570,[9]=600,[10]=640,[11]=680,[12]=720,[13]=760,[14]=800,[15]=850,[16]=900,[17]=950,[18]=1000})[GetLevel(myHero)])
+	local smd = (({[1]=390,[2]=410,[3]=430,[4]=450,[5]=480,[6]=510,[7]=540,[8]=570,[9]=600,[10]=640,[11]=680,[12]=720,[13]=760,[14]=800,[15]=850,[16]=900,[17]=950,[18]=1000})[GetLevel(myHero)])
 	
 	--Auto Level
 	if KindredMenu.Misc.AutoLevel:Value() == 2 then
@@ -321,41 +320,37 @@ OnTick(function()
 	-- Auto Smite
 	for _, jung in pairs(minionManager.objects) do
 		if GetCastName(myHero, SUMMONER_1):lower():find("summonersmite") then
-			if Ready(SUMMONER_1) and ValidTarget(jung, 500) then
-				if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_1)
-				end
+			if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
+			elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
+			elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
+			elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
+			elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
+			elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_1)
 			end
-		end	
+		end
 		
 		if GetCastName(myHero, SUMMONER_2):lower():find("summonersmite") then
-			if Ready(SUMMONER_2) and ValidTarget(jung, 500) then
-				if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and GetCurrentHP(jung) <= smd then
-					CastTargetSpell(jung, SUMMONER_2)
-				end
+			if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
 			end
-		end	
-	end
+		end
+	end	
 end)
 
 --Drawings
