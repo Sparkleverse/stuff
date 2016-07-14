@@ -2,8 +2,6 @@ if GetObjectName(GetMyHero()) ~= "Kindred" then return end
 
 local ver = "0.01"
 
-require ("OpenPredict")
-
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
         print("New version found! " .. data)
@@ -21,6 +19,9 @@ end
 require("Analytics")
 
 Analytics("Eternal Kindred", "Toshibiotro", true)
+
+require ("OpenPredict")
+require("MapPositionGOS")
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
@@ -61,6 +62,10 @@ KindredMenu.JungleClear:Slider("JCMM", "Min Mana To JungleClear",25,0,100,1)
 
 KindredMenu:SubMenu("KillSteal", "KillSteal")
 KindredMenu.KillSteal:Boolean("KSQ", "Use Q", true)
+
+KindredMenu:SubMenu("WJ", "WallJump")
+KindredMenu.WJ:Boolean("WJQ", "Use Q", true)
+KindredMenu.WJ:KeyBinding("WJ", "Wall Jump", string.byte("G"))
 
 KindredMenu:SubMenu("GapClose", "GapClose")
 KindredMenu.GapClose:Boolean("GCQ", "Use Q", true)
@@ -292,6 +297,21 @@ OnTick(function()
 				CastSkillShot(_Q, target)
 			end	
 		end
+	end
+
+	--WallJump :/
+	if KindredMenu.WallJump.WJ:Value() then
+		local jump1 = GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 75
+		local jump2 =  GetOrigin(myHero) + (Vector(mousePos) - GetOrigin(myHero)):normalized() * 450
+		if KindredMenu.WallJump.WJQ:Value() then
+			if not MapPosition:inWall(jump1) then
+				MoveToXYZ(GetMousePos())
+				else
+				if not MapPosition:inWall(jump2) and Ready(_Q) then
+					CastSkillShot(_Q, jump2)
+				end
+			end
+		end	
 	end	
 end)
 
