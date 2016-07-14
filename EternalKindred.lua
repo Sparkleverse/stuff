@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Kindred" then return end
 
-local ver = "0.01"
+local ver = "0.02"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -78,6 +78,14 @@ KindredMenu.Misc:Boolean("ARA", "Auto R Save Allies", true)
 KindredMenu.Misc:Slider("ARAC", "Min Ally HP To Use R",10,0,100,1)
 KindredMenu.Misc:Boolean("QSS", "Use QSS", true)
 
+KindredMenu:SubMenu("AutoSmite", "Auto Smite")
+KindredMenu.AutoSmite:Boolean("ASG", "Smite Gromp", false)
+KindredMenu.AutoSmite:Boolean("ASB", "Smite Blue", true)
+KindredMenu.AutoSmite:Boolean("ASR", "Smite Red", false)
+KindredMenu.AutoSmite:Boolean("ASK", "Smite Big Krug", false)
+KindredMenu.AutoSmite:Boolean("ASD", "Smite Dragon", true)
+KindredMenu.AutoSmite:Boolean("ASBA", "Smite Baron", true)
+
 KindredMenu:SubMenu("Draw", "Drawings")
 KindredMenu.Draw:Boolean("DAA", "Draw AA Range", true)
 KindredMenu.Draw:Boolean("DQ", "Draw Q Range", true)
@@ -88,14 +96,12 @@ KindredMenu.Draw:Boolean("DQD", "Draw Q Dash Range", true)
 
 KindredMenu:SubMenu("SkinChanger", "SkinChanger")
 
-local skinMeta = {["Kindred"] = {"Classic", "Shadowfire", "Super Galaxy"}}
+local skinMeta = {["Kindred"] = {"Classic", "Shadowfire", "Super Galaxy", "Test"}}
 KindredMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skinMeta[myHero.charName], HeroSkinChanger, true)
 KindredMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skinMeta[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
 
 local mark = 0
 local target = GetCurrentTarget()
-local QSS = 0
-local MercSkimm = 0
 function QDmg(unit) return CalcDamage(myHero, unit, 35 + 20 * GetCastLevel(myHero, _Q) + (myHero.totalDamage * 0.2) + (5 * mark), 0) end
 local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
 local nextAttack = 0
@@ -106,6 +112,7 @@ local WRange = GetCastRange(myHero, _W) + GetHitBox(myHero)
 local ERange = GetCastRange(myHero, _E) + GetHitBox(myHero)
 local QRange = GetCastRange(myHero, _Q) + GetHitBox(myHero)
 local RRange = GetCastRange(myHero, _R) + GetHitBox(myHero)
+local smd = 0
 
 OnTick(function()
 
@@ -118,6 +125,7 @@ OnTick(function()
 	mark = GetBuffData(myHero, "kindredmarkofthekindredstackcounter").Stacks
 	QSS = GetItemSlot(myHero, 3140)
 	MercSkimm = GetItemSlot(myHero, 3139)
+	smd = (({[1]=390,[2]=410,[3]=430,[4]=450,[5]=480,[6]=510,[7]=540,[8]=570,[9]=600,[10]=640,[11]=680,[12]=720,[13]=760,[14]=800,[15]=850,[16]=900,[17]=950,[18]=1000})[GetLevel(myHero)])
 	
 	--Auto Level
 	if KindredMenu.Misc.AutoLevel:Value() == 2 then
@@ -244,22 +252,18 @@ OnTick(function()
 					end	
 				end
 			end
-		end
-	end		
 	
 	--JungleClear
-	if Mix:Mode() == "LaneClear" then
-		for _, jung in pairs(minionManager.objects) do
-			if GetTeam(jung) == MINION_JUNGLE then
-				if KindredMenu.JungleClear.JCW:Value() and Ready(_W) and ValidTarget(jung, WRange) then
+			if GetTeam(minion) == MINION_JUNGLE and GetObjectName(minion):lower():find("sru") and not GetObjectName(minion):lower():find("mini") then
+				if KindredMenu.JungleClear.JCW:Value() and Ready(_W) and ValidTarget(minion, WRange) then
 					if GetPercentMP(myHero) >= KindredMenu.JungleClear.JCMM:Value() then
 						CastSpell(_W)
 					end
 				end
 		
-				if KindredMenu.JungleClear.JCE:Value() and Ready(_E) and ValidTarget(jung, ERange) then
+				if KindredMenu.JungleClear.JCE:Value() and Ready(_E) and ValidTarget(minion, ERange) then
 					if GetPercentMP(myHero) >= KindredMenu.JungleClear.JCMM:Value() then
-						CastTargetSpell(jung, _E)
+						CastTargetSpell(minion, _E)
 					end
 				end	
 			end
@@ -312,7 +316,46 @@ OnTick(function()
 				end
 			end
 		end	
-	end	
+	end
+
+	-- Auto Smite
+	for _, jung in pairs(minionManager.objects) do
+		if GetCastName(myHero, SUMMONER_1):lower():find("summonersmite") then
+			if Ready(SUMMONER_1) and ValidTarget(jung, 500) then
+				if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_1)
+				end
+			end
+		end	
+		
+		if GetCastName(myHero, SUMMONER_2):lower():find("summonersmite") then
+			if Ready(SUMMONER_2) and ValidTarget(jung, 500) then
+				if KindredMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				elseif KindredMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				elseif KindredMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				elseif KindredMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				elseif KindredMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				elseif KindredMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and GetCurrentHP(jung) <= smd then
+					CastTargetSpell(jung, SUMMONER_2)
+				end
+			end
+		end	
+	end
 end)
 
 --Drawings
@@ -324,16 +367,6 @@ OnDraw(function()
 	if KindredMenu.Draw.DR:Value() then DrawCircle(myHero, RRange, 1, 25, GoS.Pink) end
 	if KindredMenu.Draw.DQD:Value() then DrawCircle(myHero, 340, 1, 25, GoS.Cyan) end
 end)
-
---Animation Cancel
-OnAnimation(function(unit,animation)
-	if unit.isMe and animation:lower():find("spell1forward") then
-		CastEmote(EMOTE_DANCE)
-		DelayAction(function()
-			Mix:ResetAA()
-		end, 0.05)
-	end
-end)	
 
 --Auto Attack Resets
 OnProcessSpellComplete(function(unit, spell)
@@ -360,6 +393,10 @@ OnProcessSpellComplete(function(unit, spell)
 			end
 		end	
 	end
+	
+	if unit.isMe and spell.name:lower():find("kindredq") then
+		Mix:ResetAA()
+	end	
 end)
 
 --Auto QSS
@@ -374,13 +411,18 @@ OnUpdateBuff(function(unit, buff)
 		if GetPercentHP(myHero) <= 90 and EnemiesAround(myHero, 900) >= 1 then
 			CastSpell(MercSkimm)
 		end
-	end	
+	end
 end)
 
 --Auto Attack Cancels
 OnProcessSpell(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("attack") then
 		nextAttack = GetTickCount() + spell.windUpTime * 1000
+	end
+	
+--Animation Cancel	
+	if unit.isMe and spell.name:lower():find("kindredq") then
+		CastEmote(EMOTE_DANCE)
 	end
 end)	
 
