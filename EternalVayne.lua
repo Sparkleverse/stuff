@@ -10,7 +10,6 @@ require("Analytics")
 
 Analytics("Eternal Vayne", "Toshibiotro", true)
 
-require ("DamageLib")
 require ("OpenPredict")
 require ("MapPositionGOS")
 
