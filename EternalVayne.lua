@@ -2,6 +2,16 @@ if GetObjectName(myHero) ~= "Vayne" then return end
 
 local ver = "0.01"
 
+function AutoUpdate(data)
+    if tonumber(data) > tonumber(ver) then
+        print("New version found! " .. data)
+        print("Downloading update, please wait...")
+        DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalVayne.lua", SCRIPT_PATH .. "EternalVayne.lua", function() print("Update Complete, please 2x F6!") return end)
+    end
+end
+
+GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalVayne.version", AutoUpdate)
+
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
 end
@@ -413,7 +423,7 @@ end)
 
 OnDeleteObj(function(object)
 	if object.isSpell and object.spellName:lower():find("aniviaiceblock") and object.spellOwner.team == GetTeam(myHero) then
-        AniviaWall = nil
+        	AniviaWall = nil
 	end
 	
 	if object.isSpell and object.spellName:lower():find("trundlewall") and object.spellOwner.team == GetTeam(myHero) then
