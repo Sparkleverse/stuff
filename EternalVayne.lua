@@ -22,6 +22,7 @@ Analytics("Eternal Vayne", "Toshibiotro", true)
 
 require ("OpenPredict")
 require ("MapPositionGOS")
+require ("ChallengerCommon")
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
@@ -84,6 +85,8 @@ VayneMenu.GapClose:Boolean("GCR", "Use R", false)
 
 VayneMenu:SubMenu("AntiGapCloser", "AntiGapCloser")
 VayneMenu.AntiGapCloser:Boolean("AGE", "Use E", true)
+
+VayneMenu:SubMenu("Interrupter", "Interrupter")
 
 VayneMenu:SubMenu("Draw", "Drawings")
 VayneMenu.Draw:Boolean("DAA", "Draw AA Range", true)
@@ -231,7 +234,7 @@ OnTick(function()
 			end
 		end		
 
-		if VayneMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 600) then
+		if VayneMenu.Combo.CR:Value() and Ready(_R) and ValidTarget(target, 750) then
 			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() then
 				if GetPercentHP(myHero) >= GetPercentHP(target) and GetPercentHP(target) >= 30 then
 					CastSpell(_R)
@@ -344,6 +347,7 @@ OnTick(function()
 				blahblah = false
 				blahblah2 = false
 				blahblah3 = false
+				blahblah4 = false
 				CastTargetSpell(enemy, _E)
 			end
 		end	
@@ -412,17 +416,17 @@ OnTick(function()
 	end
 	
 	--GapClose
-	if VayneMenu.GapClose.GCQ:Value() and Ready(_Q) and ValidTarget(target, 1000) and GetDistance(myHero, target) > AARange then
-		if GetDistance(movePos) > GetDistance(target) then
-			if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
+	if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
+		if VayneMenu.GapClose.GCQ:Value() and Ready(_Q) and ValidTarget(target, 1000) and GetDistance(myHero, target) > 700 then
+			if GetDistance(movePos) > GetDistance(target) then
 				CastSkillShot(_Q, target)
 			end
 		end
 	end
 	
-	if VayneMenu.GapClose.GCR:Value() and Ready(_R) and ValidTarget(target, 1200) and GetDistance(myHero, target) > AARange then
-		if GetDistance(movePos) > GetDistance(target) and target.ms > myHero.ms then
-			if Mix:Mode() == "Combo" then
+	if Mix:Mode() == "Combo" then
+		if VayneMenu.GapClose.GCR:Value() and Ready(_R) and ValidTarget(target, 1200) and GetDistance(myHero, target) > AARange then
+			if GetDistance(movePos) > GetDistance(target) and target.ms > myHero.ms then
 				CastSpell(_R)
 			end
 		end	
@@ -563,8 +567,20 @@ OnProcessSpell(function(unit, spell)
 	
 	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah4 == true then
 		CastSkillShot(flash, FFPos4)
-	end	
-end)
+	end
+end)	
+
+OnLoad(function()
+	ChallengerCommon.Interrupter(VayneMenu.Interrupter, function(unit, spell)
+		if unit.team == MINION_ENEMY and Ready(_E) and GetDistance(myHero, unit) <= ERange then
+			blahblah = false
+			blahblah2 = false
+			blahblah3 = false
+			blahblah4 = false
+			CastTargetSpell(unit, _E)
+		end
+	end)
+end)	
 
 OnProcessWaypoint(function(unit, waypointProc)
 	if unit.isHero and waypointProc.dashspeed > unit.ms and not unit.isMe and unit.team == 300 - myHero.team and unit.isTargetable then
