@@ -1,6 +1,6 @@
 if GetObjectName(myHero) ~= "Vayne" then return end
 
-local ver = "0.02"
+local ver = "0.03"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -71,7 +71,7 @@ VayneMenu.Misc:Boolean("AC", "Auto Condemn", true)
 VayneMenu.Misc:Boolean("ACA", "Anivia Wall Condemn", true)
 VayneMenu.Misc:Boolean("ACT", "Trundle Pillar Condemn", true)
 VayneMenu.Misc:Boolean("QSS", "Use QSS", true)
-VayneMenu.Misc:Boolean("QSSC", "HP To QSS", 90,0,100,1)
+VayneMenu.Misc:Slider("QSSC", "HP To QSS", 90,0,100,1)
 VayneMenu.Misc:Boolean("AI", "Auto Ignite", true)
 VayneMenu.Misc:Boolean("AR", "Auto R", true)
 VayneMenu.Misc:Slider("ARC", "Min Enemies To Auto R",3,1,6,1)
@@ -101,6 +101,7 @@ local target = GetCurrentTarget()
 function QDmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage + (myHero.totalDamage * (0.25 + 0.05 * GetCastLevel(myHero, _W))), 0) end
 function WDmg(unit) return (unit.maxHealth * (0.045 + 0.015 * GetCastLevel(myHero, _W))) end
 function AADmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage, 0) end
+function EDmg(unit) return CalcDamage(myHero, unit, (10 + 35 * GetCastLevel(myHero, _E)) + (myHero.totalDamage * 0.5)) end
 local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
 local CCType = {[5] = "Stun", [7] = "Silence", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
 local QSS = nil
@@ -112,6 +113,7 @@ local CPos = nil
 local ZSpot = nil
 local ZZRot = nil
 local WallC = nil
+local WallT = nil
 local EStats = {delay = 0.25, range = ERange, radius = 1, speed = 2000}
 local Meh = nil
 local Meh2 = nil
@@ -124,6 +126,7 @@ local CFPos = nil
 local CFPos2 = nil
 local CFPos3 = nil
 local flash = (GetCastName(GetMyHero(),SUMMONER_1):lower():find("summonerflash") and SUMMONER_1 or (GetCastName(GetMyHero(),SUMMONER_2):lower():find("summonerflash") and SUMMONER_2 or nil))
+local Pink = nil
 
 OnTick(function()
 	
@@ -138,6 +141,7 @@ OnTick(function()
 	local WStacks = GetBuffData(target, "VayneSilveredDebuff").Count
 	ZSpot = target.pos + (target.pos - myHero.pos):normalized() * 100
 	ZZRot = GetItemSlot(myHero, 3512)
+	local Invis = GotBuff(myHero, "vaynetumblefade")
 	
 	FFPos = target.pos + (target.pos - myHero.pos):normalized() * 425
 	FFPos2 = target.pos + (target.pos - myHero.pos):perpendicular():normalized() * 425
@@ -149,13 +153,15 @@ OnTick(function()
 	CFPos3 = target.pos + (target.pos - FFPos):normalized():perpendicular2() * 425
 	CFPos4 = target.pos + (target.pos - FFPos):normalized() * -425
 	
-	SMeh = GetPrediction(target, EStats)
-	SMehPos = Vector(SMeh.castPos)
-	SMeh2 = SMehPos + (SMehPos - myHero.pos):normalized() * 430
-	SMeh3 = SMehPos + (SMehPos - myHero.pos):normalized() * 200
+	SMehPos = target.pos + (target.pos - myHero.pos):normalized() * 430
+	SMehPos2 = target.pos + (target.pos - myHero.pos):normalized() * 200
+
 	
-	if myHero.isStealthed and VayneMenu.Misc.DAAS:Value() then Mix:BlockAttack(true) end
-	if myHero.isVisible then Mix:BlockAttack(false) end
+	if Invis > 0 and Pink ~= nil and GetDistance(myHero, Pink) > 1000 and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then Mix:BlockAttack(true)
+		elseif Pink == nil and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then Mix:BlockAttack(true)
+	end
+	
+	if Invis < 1 then Mix:BlockAttack(false) end
 	
 	--AutoLevel
 	if VayneMenu.Misc.AutoLevel:Value() == 2 then
@@ -217,7 +223,7 @@ OnTick(function()
 		end
 		
 		if VayneMenu.Combo.EO.ES:Value() and Ready(_E) and ValidTarget(target, ERange) then
-			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() and MapPosition:inWall(SMeh2) or MapPosition:inWall(SMeh3) then
+			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() and MapPosition:inWall(SMehPos) or MapPosition:inWall(SMehPos2) then
 				blahblah = false
 				blahblah2 = false
 				blahblah3 = false
@@ -297,7 +303,7 @@ OnTick(function()
 		end
 		
 		if VayneMenu.Harass.HEO.HES:Value() and Ready(_E) and ValidTarget(target, ERange) then
-			if GetPercentMP(myHero) >= VayneMenu.Harass.HMM:Value() and MapPosition:inWall(SMeh2) or MapPosition:inWall(SMeh3) then
+			if GetPercentMP(myHero) >= VayneMenu.Harass.HMM:Value() and MapPosition:inWall(SMehPos) or MapPosition:inWall(SMehPos2) then
 				CastTargetSpell(target, _E)
 			end	
 		end
@@ -325,10 +331,22 @@ OnTick(function()
 	--KillSteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
 	
-		Meh = GetPrediction(enemy, EStats)
-		MehPos = Vector(Meh.castPos)
-		Meh2 = MehPos + (MehPos - myHero.pos):normalized() * 430
-		Meh3 = MehPos + (MehPos - myHero.pos):normalized() * 200
+		MehPos = enemy.pos + (enemy.pos - myHero.pos):normalized() * 430
+		MehPos2 = enemy.pos + (enemy.pos - myHero.pos):normalized() * 200
+		
+		if MapPosition:inWall(MehPos) or MapPosition:inWall(MehPos2) then
+			inwall = true
+			else inwall = false
+		end	
+
+		if VayneMenu.Misc.AC:Value() and Ready(_E) and ValidTarget(enemy, ERange) then
+			if inwall == true then
+				blahblah = false
+				blahblah2 = false
+				blahblah3 = false
+				CastTargetSpell(enemy, _E)
+			end
+		end	
 	
 		if AniviaWall ~= nil then
 			WallC = AniviaWall.pos + (AniviaWall.pos - myHero.pos):normalized() * 430
@@ -346,23 +364,14 @@ OnTick(function()
 		end
 	
 		if VayneMenu.KillSteal.KSW:Value() and ValidTarget(enemy, AARange) then
-			if GetCurrentHP(enemy) + GetDmgShield(enemy) <= WDmg(enemy) then
+			if GetCurrentHP(enemy) + GetDmgShield(enemy) + GetHPRegen(enemy) <= WDmg(enemy) + EDmg(enemy) then
 				if AlliesAround(enemy, 600) >= 2 and WStacks(enemy) == 2 then
-					AttackUnit(enemy)
+					CastTargetSpell(enemy, _E)
 				end
 			end
 		end
 
-		--AutoCondemn
-		if VayneMenu.Misc.AC:Value() and Ready(_E) and ValidTarget(enemy, ERange) then
-			if MapPosition:inWall(Meh2) or MapPosition:inWall(Meh3) then
-				blahblah = false
-				blahblah2 = false
-				blahblah3 = false
-				CastTargetSpell(enemy, _E)
-			end
-		end
-		
+		--AutoCondemn TWall, AWall
 		if AniviaWall ~= nil then
 			if VayneMenu.Misc.ACA:Value() and Ready(_E) and ValidTarget(enemy, ERange) and CountObjectsOnLineSegment(WallC, AniviaWall, 400, GetEnemyHeroes()) > 0 then
 				blah = false
@@ -413,7 +422,7 @@ OnTick(function()
 	
 	if VayneMenu.GapClose.GCR:Value() and Ready(_R) and ValidTarget(target, 1200) and GetDistance(myHero, target) > AARange then
 		if GetDistance(movePos) > GetDistance(target) and target.ms > myHero.ms then
-			if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
+			if Mix:Mode() == "Combo" then
 				CastSpell(_R)
 			end
 		end	
@@ -421,7 +430,7 @@ OnTick(function()
 	
 	--ZZRot Condemn
 	if VayneMenu.Combo.RotSec:Value() and Ready(_E) and ValidTarget(target, 375) and EnemiesAround(target, 800) < 1 then
-		if not MapPosition:inWall(CPos) and ZZRot > 0 and Ready(ZZRot) then
+		if not MapPosition:inWall(MehPos) and not MapPosition:inWall(MehPos2) and ZZRot > 0 and Ready(ZZRot) then
 			CastTargetSpell(target, _E)
 			blah = true
 			else blah = false
@@ -496,22 +505,30 @@ OnProcessSpellComplete(function(unit, spell)
 end)
 
 OnCreateObj(function(object)
-	if object.isSpell and object.spellName:lower():find("aniviaiceblock") and object.spellOwner.team == GetTeam(myHero) then
+	if object.isSpell and object.spellName:lower():find("crystallize") and object.spellOwner.team == GetTeam(myHero) then
 		AniviaWall = object
 	end
 	
 	if object.isSpell and object.spellName:lower():find("trundlewall") and object.spellOwner.team == GetTeam(myHero) then
 		TrundlePillar = object
 	end
+	
+	if object.isSpell and object.spellName:lower():find("visionward") and object.spellOwner.team == 300 - GetTeam(myHero) then
+		Pink = object
+	end
 end)
 
 OnDeleteObj(function(object)
-	if object.isSpell and object.spellName:lower():find("aniviaiceblock") and object.spellOwner.team == GetTeam(myHero) then
+	if object.isSpell and object.spellName:lower():find("crystallize") and object.spellOwner.team == GetTeam(myHero) then
         AniviaWall = nil
 	end
 	
 	if object.isSpell and object.spellName:lower():find("trundlewall") and object.spellOwner.team == GetTeam(myHero) then
 		TrundlePillar = nil
+	end
+	
+	if object.isSpell and object.spellName:lower():find("visionward") and object.spellOwner.team == 300 - GetTeam(myHero) then
+		Pink = nil
 	end
 end)	
 
@@ -558,6 +575,6 @@ OnProcessWaypoint(function(unit, waypointProc)
 			end	
 		end
 	end
-end)	
+end)
 
 print("Thanks For Using Eternal Vayne, Have Fun " ..myHero.name.. " :)")	
