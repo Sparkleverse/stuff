@@ -1,6 +1,6 @@
 if GetObjectName(myHero) ~= "Vayne" then return end
 
-local ver = "0.04"
+local ver = "0.05"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -84,7 +84,6 @@ VayneMenu.GapClose:Boolean("GCQ", "Use Q", true)
 VayneMenu.GapClose:Boolean("GCR", "Use R", false)
 
 VayneMenu:SubMenu("AntiGapCloser", "AntiGapCloser")
-VayneMenu.AntiGapCloser:Boolean("AGE", "Use E", true)
 
 VayneMenu:SubMenu("Interrupter", "Interrupter")
 
@@ -102,7 +101,7 @@ VayneMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, mo
 
 local target = GetCurrentTarget()
 function QDmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage + (myHero.totalDamage * (0.25 + 0.05 * GetCastLevel(myHero, _W))), 0) end
-function WDmg(unit) return (unit.maxHealth * (0.045 + 0.015 * GetCastLevel(myHero, _W))) end
+function WDmg(unit) return CalcDamage(myHero, unit, AADmg(unit), 0) + (unit.maxHealth * (0.045 + 0.015 * GetCastLevel(myHero, _W))) end
 function AADmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage, 0) end
 function EDmg(unit) return CalcDamage(myHero, unit, (10 + 35 * GetCastLevel(myHero, _E)) + (myHero.totalDamage * 0.5)) end
 local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
@@ -151,13 +150,15 @@ OnTick(function()
 	FFPos3 = target.pos + (target.pos - myHero.pos):perpendicular2():normalized() * 425
 	FFPos4 = target.pos + (target.pos - myHero.pos):normalized() * -425
 	
-	CFPos = target.pos + (target.pos - FFPos):normalized() * 425
-	CFPos2 = target.pos + (target.pos - FFPos):normalized():perpendicular() * 425
-	CFPos3 = target.pos + (target.pos - FFPos):normalized():perpendicular2() * 425
-	CFPos4 = target.pos + (target.pos - FFPos):normalized() * -425
+	CFPos = target.pos + (target.pos - FFPos):normalized() * 440
+	CFPos2 = target.pos + (target.pos - FFPos):normalized():perpendicular() * 440
+	CFPos3 = target.pos + (target.pos - FFPos):normalized():perpendicular2() * 440
+	CFPos4 = target.pos + (target.pos - FFPos):normalized() * -440
 	
-	SMehPos = target.pos + (target.pos - myHero.pos):normalized() * 430
-	SMehPos2 = target.pos + (target.pos - myHero.pos):normalized() * 200
+	SMehPus = GetPrediction(target, EStats)
+	SMehPos = Vector(SMehPus)
+	SMeh = SMehPos + (SMehPos - myHero.pos):normalized() * 420
+	SMeh2 = SMehPos + (SMehPos - myHero.pos):normalized() * 180
 
 	
 	if Invis > 0 and Pink ~= nil and GetDistance(myHero, Pink) > 1000 and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then Mix:BlockAttack(true)
@@ -226,10 +227,11 @@ OnTick(function()
 		end
 		
 		if VayneMenu.Combo.EO.ES:Value() and Ready(_E) and ValidTarget(target, ERange) then
-			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() and MapPosition:inWall(SMehPos) or MapPosition:inWall(SMehPos2) then
+			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() and MapPosition:inWall(SMeh) or MapPosition:inWall(SMeh2) then
 				blahblah = false
 				blahblah2 = false
 				blahblah3 = false
+				blahblah4 = false
 				CastTargetSpell(target, _E)
 			end
 		end		
@@ -268,7 +270,7 @@ OnTick(function()
 		
 		--Condemn Flash
 		if flash and VayneMenu.Combo.CF:Value() then
-			if Ready(_E) and Ready(flash) and ValidTarget(target, 375) and EnemiesAround(myHero, 800) < 2 and AlliesAround(myHero) < 2 then
+			if Ready(_E) and Ready(flash) and ValidTarget(target, 375) and EnemiesAround(myHero, 800) < 2 and AlliesAround(myHero) < 2 and GetDistance(myHero, target) > 200 then
 				if MapPosition:inWall(CFPos) and not MapPosition:inWall(CFPos4) and not MapPosition:inWall(CFPos2) and not MapPosition:inWall(CFPos3) then
 					blahblah = true
 					CastTargetSpell(target, _E)
@@ -306,7 +308,7 @@ OnTick(function()
 		end
 		
 		if VayneMenu.Harass.HEO.HES:Value() and Ready(_E) and ValidTarget(target, ERange) then
-			if GetPercentMP(myHero) >= VayneMenu.Harass.HMM:Value() and MapPosition:inWall(SMehPos) or MapPosition:inWall(SMehPos2) then
+			if GetPercentMP(myHero) >= VayneMenu.Harass.HMM:Value() and MapPosition:inWall(SMeh) or MapPosition:inWall(SMeh2) then
 				CastTargetSpell(target, _E)
 			end	
 		end
@@ -333,9 +335,11 @@ OnTick(function()
 
 	--KillSteal
 	for _, enemy in pairs(GetEnemyHeroes()) do
-	
-		MehPos = enemy.pos + (enemy.pos - myHero.pos):normalized() * 430
-		MehPos2 = enemy.pos + (enemy.pos - myHero.pos):normalized() * 200
+		
+		Meh = GetPrediction(enemy, EStats)
+		Mehh = Vector(Meh)
+		MehPos = Mehh + (Mehh - myHero.pos):normalized() * 440
+		MehPos2 = Mehh + (Mehh - myHero.pos):normalized() * 180
 		
 		if MapPosition:inWall(MehPos) or MapPosition:inWall(MehPos2) then
 			inwall = true
@@ -553,19 +557,19 @@ OnProcessSpell(function(unit, spell)
 		end
 	end
 	
-	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah == true then
+	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah == true and blahblah2 == false and blahblah3 == false and blahblah4 == false then
 		CastSkillShot(flash, FFPos)
 	end
 	
-	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah2 == true then
+	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah2 == true and blahblah3 == false and blahblah4 == false and blahblah == false then
 		CastSkillShot(flash, FFPos2)
 	end
 	
-	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah3 == true then
+	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah3 == true and blahblah4 == false and blahblah == false and blahblah2 == false then
 		CastSkillShot(flash, FFPos3)
 	end
 	
-	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah4 == true then
+	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blahblah4 == true and blahblah == false and blahblah2 == false and blahblah3 == false then
 		CastSkillShot(flash, FFPos4)
 	end
 end)	
@@ -573,24 +577,15 @@ end)
 OnLoad(function()
 	ChallengerCommon.Interrupter(VayneMenu.Interrupter, function(unit, spell)
 		if unit.team == MINION_ENEMY and Ready(_E) and GetDistance(myHero, unit) <= ERange then
-			blahblah = false
-			blahblah2 = false
-			blahblah3 = false
-			blahblah4 = false
 			CastTargetSpell(unit, _E)
 		end
 	end)
+	
+	ChallengerCommon.AntiGapcloser(VayneMenu.AntiGapCloser, function(unit, spell)
+		if unit.team == MINION_ENEMY and Ready(_E) and GetDistance(myHero, unit) <= ERange then
+			CastTargetSpell(unit, _E)
+		end	
+	end)
 end)	
-
-OnProcessWaypoint(function(unit, waypointProc)
-	if unit.isHero and waypointProc.dashspeed > unit.ms and not unit.isMe and unit.team == 300 - myHero.team and unit.isTargetable then
-		local dashTargetPos = waypointProc.position
-		if VayneMenu.AntiGapCloser.AGE:Value() then	
-			if GetDistance(myHero, dashTargetPos) < ERange and Ready(_E) then
-				CastTargetSpell(unit, _E)
-			end	
-		end
-	end
-end)
 
 print("Thanks For Using Eternal Vayne, Have Fun " ..myHero.name.. " :)")	
