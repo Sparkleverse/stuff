@@ -20,8 +20,6 @@ require("Analytics")
 
 Analytics("Eternal Wukong", "Toshibiotro", true)
 
-require ("OpenPredict")
-
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
 else
@@ -87,6 +85,19 @@ WMenu.M:Slider("QSSC", "HP To QSS", 90, 0, 100, 1)
 WMenu.M:Boolean("DAAS", "Dont Attack While Invis", true)
 WMenu.M:Boolean("QT", "Use Q On Towers", true)
 
+WMenu:SubMenu("AutoSmite", "Auto Smite")
+WMenu.AutoSmite:Boolean("ASG", "Smite Gromp", false)
+WMenu.AutoSmite:Boolean("ASB", "Smite Blue", true)
+WMenu.AutoSmite:Boolean("ASR", "Smite Red", false)
+WMenu.AutoSmite:Boolean("ASK", "Smite Big Krug", false)
+WMenu.AutoSmite:Boolean("ASD", "Smite Dragon", true)
+WMenu.AutoSmite:Boolean("ASBA", "Smite Baron", true)
+
+WMenu:SubMenu("E", "Escape")
+WMenu.E:Boolean("EE", "Use E", true)
+WMenu.E:Boolean("EYGB", "Use GhostBlade")
+WMenu.E:KeyBinding("EK", "Escape Key", string.byte("G"))
+
 WMenu:SubMenu("D", "Drawings")
 WMenu.D:Boolean("DAA", "Draw AA Range", true)
 WMenu.D:Boolean("DQ", "Draw Q Range", true)
@@ -110,7 +121,7 @@ local spellorder6 = {_E, _W, _Q, _E, _E, _R, _E, _W, _E, _W, _R, _W, _W, _Q, _Q,
 local target = GetCurrentTarget()
 function QDmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage + ((30 * GetCastLevel(myHero, _Q)) + (myHero. totalDamage * 0.1)), 0) end
 function EDmg(unit) return CalcDamage(myHero, unit, 15 + 45 * GetCastLevel(myHero, _E) + GetBonusDmg(myHero) * 0.8) end
-local AARange = GetRange(myHero) + GetHitBox(myHero)
+local AARange = 175 + GetHitBox(myHero)
 local ERange = GetCastRange(myHero, _E) + GetHitBox(myHero)
 local QRange = GetCastRange(myHero, _Q) + GetHitBox(myHero)
 local RRange = GetCastRange(myHero, _R) + GetHitBox(myHero)
@@ -132,6 +143,7 @@ OnTick(function()
 	local UltOn = GotBuff(myHero, "MonkeyKingSpinToWin")
 	local THBuff = GotBuff(myHero, "itemtitanichydracleavebuff")
 	local IDamage = (50 + (20 * GetLevel(myHero)))
+	local smd = (({[1]=390,[2]=410,[3]=430,[4]=450,[5]=480,[6]=510,[7]=540,[8]=570,[9]=600,[10]=640,[11]=680,[12]=720,[13]=760,[14]=800,[15]=850,[16]=900,[17]=950,[18]=1000})[GetLevel(myHero)])
 	
 	if Invis > 0 and WMenu.M.DAAS:Value() then Mix:BlockAttack(true) end
 	if Invis < 1 then Mix:BlockAttack(false) end
@@ -170,7 +182,7 @@ OnTick(function()
 			end
 		end
 		
-		if WMenu.C.CW:Value() and Ready(_W) and ValidTarget(target, 175) then
+		if WMenu.C.CW:Value() and Ready(_W) and not Ready(_Q) and not Ready(_E) and ValidTarget(target, 175) then
 			if GetPercentMP(myHero) >= WMenu.C.CMM:Value() and GetPercentHP(myHero) <= WMenu.C.CWC:Value() then
 				CastSpell(_W)
 			end	
@@ -180,7 +192,7 @@ OnTick(function()
 			CastSpell(_R)
 		end
 		
-		if WMenu.C.CRC:Value() and UltOn > 0 and ValidTarget(target, 600) then
+		if WMenu.C.CRC:Value() and UltOn > 0 and ValidTarget(target, 650) then
 			MoveToXYZ(target)
 		end
 
@@ -203,7 +215,7 @@ OnTick(function()
 			end
 		end
 		
-		if WMenu.H.HW:Value() and Ready(_W) and ValidTarget(target, 175) then
+		if WMenu.H.HW:Value() and Ready(_W) and not Ready(_Q) and not Ready(_E) and ValidTarget(target, 175) then
 			if GetPercentMP(myHero) >= WMenu.H.HMM:Value() and GetPercentHP(myHero) <= WMenu.H.HEC:Value() then
 				CastSpell(_W)
 			end
@@ -299,6 +311,52 @@ OnTick(function()
 		if EnemiesAround(myHero, 700) >= 1 and GetPercentHP(myHero) <= WMenu.M.AWC:Value() then
 			CastSpell(_W)
 		end	
+	end
+	
+	-- Escape
+	if WMenu.E.EK:Value() then	
+		MoveToXYZ(GetMousePos())
+		for _, EMinion in pairs(minionManager.objects) do
+			if WMenu.E.EE:Value() and Ready(_E) and ValidTarget(EMinion, ERange) and EnemiesAround(myHero, 1000) > 0 and EnemiesAround(EMinion, 800) < 1 then
+				CastTargetSpell(EMinion, _E)
+				elseif WMenu.E.EYGB:Value() and YGB > 0 and Ready(YGB) and EnemiesAround(myHero, 1000) > 0 then
+				CastSpell(YGB)
+			end
+		end		
+	end
+	
+	for _, jung in pairs(minionManager.objects) do
+		if GetCastName(myHero, SUMMONER_1):lower():find("summonersmite") then
+			if WMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			elseif WMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			elseif WMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			elseif WMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			elseif WMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			elseif WMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and Ready(SUMMONER_1) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+			CastTargetSpell(jung, SUMMONER_1)
+			end
+		end
+		
+		if GetCastName(myHero, SUMMONER_2):lower():find("summonersmite") then
+			if WMenu.AutoSmite.ASG:Value() and GetObjectName(jung):lower():find("sru_gromp") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+				elseif WMenu.AutoSmite.ASK:Value() and GetObjectName(jung):lower():find("sru_krug") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+				elseif WMenu.AutoSmite.ASD:Value() and GetObjectName(jung):lower():find("sru_dragon") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+				elseif WMenu.AutoSmite.ASB:Value() and GetObjectName(jung):lower():find("sru_blue") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+				elseif WMenu.AutoSmite.ASR:Value() and GetObjectName(jung):lower():find("sru_red") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+				elseif WMenu.AutoSmite.ASBA:Value() and GetObjectName(jung):lower():find("sru_baron") and Ready(SUMMONER_2) and ValidTarget(jung, 500) and GetCurrentHP(jung) <= smd then
+				CastTargetSpell(jung, SUMMONER_2)
+			end
+		end
 	end
 end)	
 
