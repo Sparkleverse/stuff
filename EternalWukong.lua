@@ -20,6 +20,8 @@ require("Analytics")
 
 Analytics("Eternal Wukong", "Toshibiotro", true)
 
+require ("OpenPredict")
+
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
 else
@@ -117,7 +119,7 @@ local TH = nil
 local T = nil
 local RH = nil
 local YGB = nil
-local CCType = {[5] = "Stun", [7] = "Silence", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
+local CCType = {[5] = "Stun", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
 
 OnTick(function()
 	
@@ -257,6 +259,7 @@ OnTick(function()
 		if WMenu.KS.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, QRange) then
 			if GetCurrentHP(enemy) + GetHPRegen(enemy) + GetDmgShield(enemy) <= QDmg(enemy) then
 				CastSpell(_Q)
+				AttackUnit(enemy)
 			end
 		end
 
