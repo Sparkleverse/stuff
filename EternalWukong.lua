@@ -20,8 +20,6 @@ require("Analytics")
 
 Analytics("Eternal Wukong", "Toshibiotro", true)
 
-require ("OpenPredict")
-
 if FileExist(COMMON_PATH.."MixLib.lua") then
  require('MixLib')
 else
