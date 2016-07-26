@@ -1,6 +1,6 @@
 if GetObjectName(myHero) ~= "MonkeyKing" then return end
 
-local ver = "0.01"
+local ver = "0.02"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -19,13 +19,6 @@ end
 require("Analytics")
 
 Analytics("Eternal Wukong", "Toshibiotro", true)
-
-if FileExist(COMMON_PATH.."MixLib.lua") then
- require('MixLib')
-else
- PrintChat("MixLib not found. Please wait for download.")
- DownloadFileAsync("https://raw.githubusercontent.com/VTNEETS/NEET-Scripts/master/MixLib.lua", COMMON_PATH.."MixLib.lua", function() PrintChat("Downloaded MixLib. Please 2x F6!") return end)
-end
 
 local WMenu = Menu("W", "Wukong")
 WMenu:SubMenu("C", "Combo")
@@ -132,6 +125,48 @@ local RH = nil
 local YGB = nil
 local CCType = {[5] = "Stun", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
 
+function Mode()
+    if _G.IOW_Loaded and IOW:Mode() then
+        return IOW:Mode()
+        elseif _G.PW_Loaded and PW:Mode() then
+        return PW:Mode()
+        elseif _G.DAC_Loaded and DAC:Mode() then
+        return DAC:Mode()
+        elseif _G.AutoCarry_Loaded and DACR:Mode() then
+        return DACR:Mode()
+        elseif _G.SLW_Loaded and SLW:Mode() then
+        return SLW:Mode()
+    end
+end
+
+function ResetAA()
+    if _G.IOW_Loaded then
+        return IOW:ResetAA()
+        elseif _G.PW_Loaded then
+        return PW:ResetAA()
+        elseif _G.DAC_Loaded then
+        return DAC:ResetAA()
+        elseif _G.AutoCarry_Loaded then
+        return DACR:ResetAA()
+        elseif _G.SLW_Loaded then
+        return SLW:ResetAA()
+    end
+end
+
+function BlockAttack(boolean)
+	if _G.IOW_Loaded then
+		return IOW.attacksEnabled == (boolean)
+		elseif _G.PW_Loaded then
+        return PW.attacksEnabled == (boolean)
+        elseif _G.DAC_Loaded then
+        return DAC.attacksEnabled == (boolean)
+        elseif _G.AutoCarry_Loaded then
+        return DACR.attacksEnabled == (boolean)
+        elseif _G.SLW_Loaded then
+        return SLW.attacksEnabled == (boolean)
+    end
+end
+
 OnTick(function()
 	
 	target = GetCurrentTarget()
@@ -145,11 +180,11 @@ OnTick(function()
 	local IDamage = (50 + (20 * GetLevel(myHero)))
 	local smd = (({[1]=390,[2]=410,[3]=430,[4]=450,[5]=480,[6]=510,[7]=540,[8]=570,[9]=600,[10]=640,[11]=680,[12]=720,[13]=760,[14]=800,[15]=850,[16]=900,[17]=950,[18]=1000})[GetLevel(myHero)])
 	
-	if Invis > 0 and WMenu.M.DAAS:Value() then Mix:BlockAttack(true) end
-	if Invis < 1 then Mix:BlockAttack(false) end
+	if Invis > 0 and WMenu.M.DAAS:Value() then BlockAttack(true) end
+	if Invis < 1 then BlockAttack(false) end
 	
-	if UltOn > 0 then Mix:BlockAttack(true) end
-	if UltOn < 1 then Mix:BlockAttack(false) end
+	if UltOn > 0 then BlockAttack(true) end
+	if UltOn < 1 then BlockAttack(false) end
 	
 	--AutoLevel
 	if GetLevelPoints(myHero) > 0 then
@@ -169,7 +204,7 @@ OnTick(function()
 	end
 	
 	-- Combo
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		if WMenu.C.CQ:Value() and WMenu.C.CQC:Value() == 1 and Ready(_Q) and ValidTarget(target, QRange) then
 			if GetPercentMP(myHero) >= WMenu.C.CMM:Value() then
 				CastSpell(_Q)
@@ -202,7 +237,7 @@ OnTick(function()
 	end
 	
 	-- Harass
-	if Mix:Mode() == "Harass" then
+	if Mode() == "Harass" then
 		if WMenu.C.CQ:Value() and WMenu.H.HQC:Value() == 1 and Ready(_Q) and ValidTarget(target, QRange) then
 			if GetPercentMP(myHero) >= WMenu.H.HMM:Value() then
 				CastSpell(_Q)
@@ -223,7 +258,7 @@ OnTick(function()
 	end		
 
 	--LaneClear
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 		for _,minion in pairs(minionManager.objects) do
 			if GetTeam(minion) == MINION_ENEMY then
 				if WMenu.LC.LCW:Value() and Ready(_W) and ValidTarget(minion, AARange) and MinionsAround(minion, 175, MINION_ENEMY) > 2 then
@@ -250,7 +285,7 @@ OnTick(function()
 	end
 	
 	--LastHit
-	if Mix:Mode() == "LastHit" then
+	if Mode() == "LastHit" then
 		for _,minion in pairs(minionManager.objects) do
 			if WMenu.LH.LHQ:Value() and Ready(_Q) and ValidTarget(minion, QRange) and GetDistance(myHero, minion) > AARange then
 				if GetCurrentHP(minion) < QDmg(minion) then
@@ -403,14 +438,14 @@ end)
 --Some Stuff	
 OnProcessSpell(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("tiamatcleave") then
-		Mix:ResetAA()
+		ResetAA()
 	end
 	
 	if unit.isMe and spell.name:lower():find("monkeykingq") then
-		Mix:ResetAA()
+		ResetAA()
 	end
 	
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 		if unit.isMinion and GetTeam(unit) == 300 and not GetObjectName(unit):lower():find("mini") and spell.target.isMe then
 			if WMenu.JC.JCW:Value() and Ready(_W) and GetPercentMP(myHero) >= WMenu.JC.JCMM:Value() then
 				DelayAction(function()
@@ -429,7 +464,7 @@ end)
 
 -- AA Resets
 OnProcessSpellComplete(function(unit, spell)
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		if unit.isMe and spell.target.isHero and IsObjectAlive(spell.target) then
 			if spell.name:lower():find("basicattack") and WMenu.C.CQ:Value() and WMenu.C.CQC:Value() == 2 then
 				if Ready(_Q) and GetPercentMP(myHero) >= WMenu.C.CMM:Value() then
@@ -459,7 +494,7 @@ OnProcessSpellComplete(function(unit, spell)
 		end
 	end
 
-	if Mix:Mode() == "Harass" then
+	if Mode() == "Harass" then
 		if unit.isMe and spell.target.isHero and IsObjectAlive(spell.target) then
 			if spell.name:lower():find("basicattack") and WMenu.H.HQ:Value() and WMenu.H.HQC:Value() == 2 then
 				if Ready(_Q) and GetPercentMP(myHero) >= WMenu.H.HMM:Value() then
@@ -489,7 +524,7 @@ OnProcessSpellComplete(function(unit, spell)
 		end
 	end
 
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 		if unit.isMe and spell.target.isMinion and GetTeam(spell.target) == MINION_ENEMY and IsObjectAlive(spell.target) then
 			if spell.name:lower():find("basicattack") and WMenu.LC.LCQ:Value() then
 				if Ready(_Q) and GetPercentMP(myHero) >= WMenu.LC.LCMM:Value() then
