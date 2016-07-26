@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Malphite" then return end
 
-local ver = "0.02"
+local ver = "0.03"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -21,13 +21,6 @@ function AutoUpdate(data)
 end
 
 GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/CustomMalphite.version", AutoUpdate)
-
-if FileExist(COMMON_PATH.."MixLib.lua") then
- require('MixLib')
-else
- PrintChat("MixLib not found. Please wait for download.")
- DownloadFileAsync("https://raw.githubusercontent.com/VTNEETS/NEET-Scripts/master/MixLib.lua", COMMON_PATH.."MixLib.lua", function() PrintChat("Downloaded MixLib. Please 2x F6!") return end)
-end
 
 local MalphiteMenu = Menu("Malphite", "Malphite")
 MalphiteMenu:SubMenu("Combo","Combo")
@@ -90,6 +83,20 @@ function QDmg(unit) return CalcDamage(myHero,unit, 20 + 50 * GetCastLevel(myHero
 function EDmg(unit) return CalcDamage(myHero, unit, 0, 25 + 35 * GetCastLevel(myHero,_E) + GetBonusAP(myHero) * 0.2 + (GetArmor(myHero) * 0.3)) end
 function RDmg(unit) return CalcDamage(myHero, unit, 0, 100 + 100 * GetCastLevel(myHero,_R) + GetBonusAP(myHero) * 1) end
 
+function Mode()
+    if _G.IOW_Loaded and IOW:Mode() then
+        return IOW:Mode()
+        elseif _G.PW_Loaded and PW:Mode() then
+        return PW:Mode()
+        elseif _G.DAC_Loaded and DAC:Mode() then
+        return DAC:Mode()
+        elseif _G.AutoCarry_Loaded and DACR:Mode() then
+        return DACR:Mode()
+        elseif _G.SLW_Loaded and SLW:Mode() then
+        return SLW:Mode()
+    end
+end
+
 OnTick(function ()
 	
 	local IDamage = (50 + (20 * GetLevel(myHero)))
@@ -104,7 +111,7 @@ OnTick(function ()
 		end
 	end
 	
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		
 		if MalphiteMenu.Combo.CQ:Value() and Ready(_Q) and ValidTarget(target, 625) then
 			if GetTickCount() > AnimationE and GetTickCount() > nextAttack then
@@ -138,7 +145,7 @@ OnTick(function ()
 		end		
 	end
 	
-	if Mix:Mode() == "Harass" then
+	if Mode() == "Harass" then
 		
 		if MalphiteMenu.Harass.HQ:Value() and Ready(_Q) and ValidTarget(target, 625) then
 			if MalphiteMenu.Harass.MMH:Value() <= GetPercentMana and GetTickCount() > nextAttack and GetTickCount() > AnimationE then
@@ -167,7 +174,7 @@ OnTick(function ()
 		end
 	end
 
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 		
 		for _,closeminion in pairs(minionManager.objects) do
 			if MalphiteMenu.LaneClear.LCQ:Value() and Ready(_Q) and ValidTarget(closeminion, 625) then
@@ -190,7 +197,7 @@ OnTick(function ()
 		end	
 	end
 	
-	if Mix:Mode() == "LastHit" then
+	if Mode() == "LastHit" then
 		for _,closeminion in pairs(minionManager.objects) do
 			if MalphiteMenu.LastHit.LHQ:Value() and Ready(_Q) and ValidTarget(closeminion, 625) then 
 				if MalphiteMenu.LastHit.MMLH:Value() <= GetPercentMana then
