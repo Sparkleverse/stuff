@@ -1,6 +1,6 @@
 if GetObjectName(myHero) ~= "Vayne" then return end
 
-local ver = "0.05"
+local ver = "0.06"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -9,27 +9,12 @@ function AutoUpdate(data)
         DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalVayne.lua", SCRIPT_PATH .. "EternalVayne.lua", function() print("Update Complete, please 2x F6!") return end)
     end
 end
-
 GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalVayne.version", AutoUpdate)
-
-if not FileExist(COMMON_PATH.. "Analytics.lua") then
-  DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
-end
-
-require("Analytics")
-
-Analytics("Eternal Vayne", "Toshibiotro", true)
 
 require ("OpenPredict")
 require ("MapPositionGOS")
 require ("ChallengerCommon")
 
-if FileExist(COMMON_PATH.."MixLib.lua") then
- require('MixLib')
-else
- PrintChat("MixLib not found. Please wait for download.")
- DownloadFileAsync("https://raw.githubusercontent.com/VTNEETS/NEET-Scripts/master/MixLib.lua", COMMON_PATH.."MixLib.lua", function() PrintChat("Downloaded MixLib. Please 2x F6!") return end)
-end
 
 local VayneMenu = Menu("Vayne", "Vayne")
 VayneMenu:SubMenu("Combo", "Combo")
@@ -104,6 +89,7 @@ function QDmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage + (myHero
 function WDmg(unit) return CalcDamage(myHero, unit, AADmg(unit), 0) + (unit.maxHealth * (0.045 + 0.015 * GetCastLevel(myHero, _W))) end
 function AADmg(unit) return CalcDamage(myHero, unit, myHero.totalDamage, 0) end
 function EDmg(unit) return CalcDamage(myHero, unit, (10 + 35 * GetCastLevel(myHero, _E)) + (myHero.totalDamage * 0.5)) end
+function WStacks(unit) return GetBuffData(unit, "VayneSilveredDebuff").Count end
 local Move = {delay = 0.5, speed = math.huge, width = 50, range = math.huge}
 local CCType = {[5] = "Stun", [7] = "Silence", [8] = "Taunt", [9] = "Polymorph", [11] = "Snare", [21] = "Fear", [22] = "Charm", [24] = "Suppression"}
 local QSS = nil
@@ -130,6 +116,48 @@ local CFPos3 = nil
 local flash = (GetCastName(GetMyHero(),SUMMONER_1):lower():find("summonerflash") and SUMMONER_1 or (GetCastName(GetMyHero(),SUMMONER_2):lower():find("summonerflash") and SUMMONER_2 or nil))
 local Pink = nil
 
+function Mode()
+    if _G.IOW_Loaded and IOW:Mode() then
+        return IOW:Mode()
+        elseif _G.PW_Loaded and PW:Mode() then
+        return PW:Mode()
+        elseif _G.DAC_Loaded and DAC:Mode() then
+        return DAC:Mode()
+        elseif _G.AutoCarry_Loaded and DACR:Mode() then
+        return DACR:Mode()
+        elseif _G.SLW_Loaded and SLW:Mode() then
+        return SLW:Mode()
+    end
+end
+
+function ResetAA()
+    if _G.IOW_Loaded then
+        return IOW:ResetAA()
+        elseif _G.PW_Loaded then
+        return PW:ResetAA()
+        elseif _G.DAC_Loaded then
+        return DAC:ResetAA()
+        elseif _G.AutoCarry_Loaded then
+        return DACR:ResetAA()
+        elseif _G.SLW_Loaded then
+        return SLW:ResetAA()
+    end
+end
+
+function BlockAttack(boolean)
+	if _G.IOW_Loaded then
+		return IOW.attacksEnabled == (boolean)
+		elseif _G.PW_Loaded then
+        return PW.attacksEnabled == (boolean)
+        elseif _G.DAC_Loaded then
+        return DAC.attacksEnabled == (boolean)
+        elseif _G.AutoCarry_Loaded then
+        return DACR.attacksEnabled == (boolean)
+        elseif _G.SLW_Loaded then
+        return SLW.attacksEnabled == (boolean)
+    end
+end
+
 OnTick(function()
 	
 	target = GetCurrentTarget()
@@ -140,7 +168,6 @@ OnTick(function()
 	MercSkimm = GetItemSlot(myHero, 3139)
 	local movePos = GetPrediction(target,Move).castPos
 	CPos = target.pos + (target.pos - myHero.pos):normalized() * 430
-	local WStacks = GetBuffData(target, "VayneSilveredDebuff").Count
 	ZSpot = target.pos + (target.pos - myHero.pos):normalized() * 100
 	ZZRot = GetItemSlot(myHero, 3512)
 	local Invis = GotBuff(myHero, "vaynetumblefade")
@@ -161,11 +188,11 @@ OnTick(function()
 	SMeh2 = SMehPos + (SMehPos - myHero.pos):normalized() * 180
 
 	
-	if Invis > 0 and Pink ~= nil and GetDistance(myHero, Pink) > 1000 and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then Mix:BlockAttack(true)
-		elseif Pink == nil and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then Mix:BlockAttack(true)
+	if Invis > 0 and Pink ~= nil and GetDistance(myHero, Pink) > 1000 and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then BlockAttack(true)
+		elseif Pink == nil and VayneMenu.Misc.DAAS:Value() and EnemiesAround(myHero, 800) > 0 and GetDistance(myHero, target) < 300 then BlockAttack(true)
 	end
 	
-	if Invis < 1 then Mix:BlockAttack(false) end
+	if Invis < 1 then BlockAttack(false) end
 	
 	--AutoLevel
 	if VayneMenu.Misc.AutoLevel:Value() == 2 then
@@ -218,7 +245,7 @@ OnTick(function()
 	end		
 	
 	--Combo
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		
 		if VayneMenu.Combo.EO.EC:Value() and Ready(_E) and ValidTarget(target, ERange) then
 			if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() and GetDistance(myHero, target) <= VayneMenu.Combo.EO.ECC:Value() then
@@ -299,7 +326,7 @@ OnTick(function()
 	end
 	
 	--Harass
-	if Mix:Mode() == "Harass" then
+	if Mode() == "Harass" then
 		
 		if VayneMenu.Harass.HEO.HEC:Value() and Ready(_E) and ValidTarget(target, ERange) then
 			if GetPercentMP(myHero) >= VayneMenu.Harass.HMM:Value() and GetDistance(myHero, target) <= VayneMenu.Harass.HEO.HECC:Value() then
@@ -315,7 +342,7 @@ OnTick(function()
 	end
 	
 	--JungleClear
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 	
 		for _, minion in pairs(minionManager.objects) do
 			local CMPos = minion.pos + (minion.pos - myHero.pos):normalized() * 450
@@ -420,7 +447,7 @@ OnTick(function()
 	end
 	
 	--GapClose
-	if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
+	if Mode() == "Combo" or Mode() == "Harass" then
 		if VayneMenu.GapClose.GCQ:Value() and Ready(_Q) and ValidTarget(target, 1000) and GetDistance(myHero, target) > 700 then
 			if GetDistance(movePos) > GetDistance(target) then
 				CastSkillShot(_Q, target)
@@ -428,7 +455,7 @@ OnTick(function()
 		end
 	end
 	
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		if VayneMenu.GapClose.GCR:Value() and Ready(_R) and ValidTarget(target, 1200) and GetDistance(myHero, target) > AARange then
 			if GetDistance(movePos) > GetDistance(target) and target.ms > myHero.ms then
 				CastSpell(_R)
@@ -474,7 +501,7 @@ end)
 -- Auto Attack Resets
 OnProcessSpellComplete(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Combo" then
+		if Mode() == "Combo" then
 			if VayneMenu.Combo.CQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) and GetCurrentHP(spell.target) > AADmg(spell.target) then
 				if GetPercentMP(myHero) >= VayneMenu.Combo.CMM:Value() then	
 					CastSkillShot(_Q, GetMousePos())
@@ -482,7 +509,7 @@ OnProcessSpellComplete(function(unit, spell)
 			end
 		end
 			
-		if Mix:Mode() == "Harass" then
+		if Mode() == "Harass" then
 			if VayneMenu.Harass.HQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) and GetCurrentHP(spell.target) > AADmg(spell.target) then
 				if GetPercentMP(myHero) >= 	VayneMenu.Harass.HMM:Value() then
 					CastSkillShot(_Q, GetMousePos())
@@ -492,7 +519,7 @@ OnProcessSpellComplete(function(unit, spell)
 	end
 
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isMinion then
-		if Mix:Mode() == "LaneClear" then
+		if Mode() == "LaneClear" then
 			if GetTeam(spell.target) == 300 - GetTeam(myHero) then
 				if VayneMenu.LaneClear.LCQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) and GetCurrentHP(spell.target) > AADmg(spell.target) then
 					if GetPercentMP(myHero) >= VayneMenu.LaneClear.LCMM:Value() then
@@ -544,9 +571,10 @@ OnAnimation(function(unit, animation)
 	if unit.isMe and animation:lower():find("spell1") then
 		if VayneMenu.Misc.QAC:Value() then
 			CastEmote(EMOTE_DANCE)
+			ResetAA()
 		end		
 	end	
-end)
+end)	
 
 OnProcessSpell(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("vaynecondemn") and spell.target.isHero and blah then
