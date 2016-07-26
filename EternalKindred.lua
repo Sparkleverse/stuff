@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Kindred" then return end
 
-local ver = "0.03"
+local ver = "0.04"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
@@ -22,13 +22,6 @@ Analytics("Eternal Kindred", "Toshibiotro", true)
 
 require ("OpenPredict")
 require("MapPositionGOS")
-
-if FileExist(COMMON_PATH.."MixLib.lua") then
- require('MixLib')
-else
- PrintChat("MixLib not found. Please wait for download.")
- DownloadFileAsync("https://raw.githubusercontent.com/VTNEETS/NEET-Scripts/master/MixLib.lua", COMMON_PATH.."MixLib.lua", function() PrintChat("Downloaded MixLib. Please 2x F6!") return end)
-end
 
 --Menu
 local KindredMenu = Menu("Kindred", "Kindred")
@@ -113,6 +106,34 @@ local ERange = GetCastRange(myHero, _E) + GetHitBox(myHero)
 local QRange = GetCastRange(myHero, _Q) + GetHitBox(myHero)
 local RRange = GetCastRange(myHero, _R) + GetHitBox(myHero)
 
+function Mode()
+    if _G.IOW_Loaded and IOW:Mode() then
+        return IOW:Mode()
+        elseif _G.PW_Loaded and PW:Mode() then
+        return PW:Mode()
+        elseif _G.DAC_Loaded and DAC:Mode() then
+        return DAC:Mode()
+        elseif _G.AutoCarry_Loaded and DACR:Mode() then
+        return DACR:Mode()
+        elseif _G.SLW_Loaded and SLW:Mode() then
+        return SLW:Mode()
+    end
+end
+
+function ResetAA()
+    if _G.IOW_Loaded then
+        return IOW:ResetAA()
+        elseif _G.PW_Loaded then
+        return PW:ResetAA()
+        elseif _G.DAC_Loaded then
+        return DAC:ResetAA()
+        elseif _G.AutoCarry_Loaded then
+        return DACR:ResetAA()
+        elseif _G.SLW_Loaded then
+        return SLW:ResetAA()
+    end
+end
+
 OnTick(function()
 
 	target = GetCurrentTarget()
@@ -170,7 +191,7 @@ OnTick(function()
 	end
 	
 	--Combo
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		
 		if KindredMenu.Combo.CW:Value() and Ready(_W) and ValidTarget(target, WRange) then
 			if GetPercentMP(myHero) >= KindredMenu.Combo.CMM:Value() then
@@ -218,7 +239,7 @@ OnTick(function()
 	end
 	
 	--Harass
-	if Mix:Mode() == "Harass" then
+	if Mode() == "Harass" then
 	
 		if KindredMenu.Harass.HW:Value() and Ready(_W) and ValidTarget(target, WRange) then
 			if GetPercentMP(myHero) >= KindredMenu.Harass.HMM:Value() then
@@ -236,7 +257,7 @@ OnTick(function()
 	end
 
 	--LaneClear	
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 		for _, minion in pairs(minionManager.objects) do
 			if GetTeam(minion) == MINION_ENEMY then
 				if KindredMenu.LaneClear.LCW:Value() and Ready(_W) and ValidTarget(minion, WRange) then
@@ -296,7 +317,7 @@ OnTick(function()
 	--GapClose
 	if KindredMenu.GapClose.GCQ:Value() and Ready(_Q) and ValidTarget(target, 1000) and GetDistance(myHero, target) > 500 then
 		if GetDistance(movePos) > GetDistance(target) then
-			if Mix:Mode() == "Combo" or Mix:Mode() == "Harass" then
+			if Mode() == "Combo" or Mode() == "Harass" then
 				CastSkillShot(_Q, target)
 			end	
 		end
@@ -366,7 +387,7 @@ end)
 --Auto Attack Resets
 OnProcessSpellComplete(function(unit, spell)
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Combo" then
+		if Mode() == "Combo" then
 			if KindredMenu.Combo.CQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) then
 				CastSkillShot(_Q, GetMousePos())
 			end
@@ -374,7 +395,7 @@ OnProcessSpellComplete(function(unit, spell)
 	end
 
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Harass" then
+		if Mode() == "Harass" then
 			if KindredMenu.Harass.HQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) then
 				CastSkillShot(_Q, GetMousePos())
 			end
@@ -382,16 +403,12 @@ OnProcessSpellComplete(function(unit, spell)
 	end
 
 	if unit.isMe and spell.name:lower():find("attack") and spell.target.isMinion then
-		if Mix:Mode() == "LaneClear" then
+		if Mode() == "LaneClear" then
 			if KindredMenu.LaneClear.LCQ:Value() and Ready(_Q) and IsObjectAlive(spell.target) then
 				CastSkillShot(_Q, GetMousePos())
 			end
 		end	
 	end
-	
-	if unit.isMe and spell.name:lower():find("kindredq") then
-		Mix:ResetAA()
-	end	
 end)
 
 --Auto QSS
@@ -418,6 +435,7 @@ OnProcessSpell(function(unit, spell)
 --Animation Cancel	
 	if unit.isMe and spell.name:lower():find("kindredq") then
 		CastEmote(EMOTE_DANCE)
+		ResetAA()
 	end
 end)	
 
