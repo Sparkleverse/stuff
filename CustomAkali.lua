@@ -1,6 +1,6 @@
 if GetObjectName(GetMyHero()) ~= "Akali" then return end
 
-local ver = "0.09"
+local ver = "0.1"
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
   DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
@@ -19,13 +19,6 @@ function AutoUpdate(data)
 end
 
 GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/CustomAkali.version", AutoUpdate)
-
-if FileExist(COMMON_PATH.."MixLib.lua") then
- require('MixLib')
-else
- PrintChat("MixLib not found. Please wait for download.")
- DownloadFileAsync("https://raw.githubusercontent.com/VTNEETS/NEET-Scripts/master/MixLib.lua", COMMON_PATH.."MixLib.lua", function() PrintChat("Downloaded MixLib. Please 2x F6!") return end)
-end
 
 local AkaliMenu = Menu("Akali", "Akali")
 AkaliMenu:SubMenu("Combo", "Combo")
@@ -92,6 +85,20 @@ local nextAttack = 0
 local AnimationQ = 0
 local target = GetCurrentTarget()
 
+function Mode()
+    if _G.IOW_Loaded and IOW:Mode() then
+        return IOW:Mode()
+        elseif _G.PW_Loaded and PW:Mode() then
+        return PW:Mode()
+        elseif _G.DAC_Loaded and DAC:Mode() then
+        return DAC:Mode()
+        elseif _G.AutoCarry_Loaded and DACR:Mode() then
+        return DACR:Mode()
+        elseif _G.SLW_Loaded and SLW:Mode() then
+        return SLW:Mode()
+    end
+end
+
 OnTick(function ()
 
 	local IDamage = (50 + (20 * GetLevel(myHero)))
@@ -111,7 +118,7 @@ OnTick(function ()
 		end
 	end	
 
-	if Mix:Mode() == "Combo" then
+	if Mode() == "Combo" then
 		
 		if GetCurrentMana(myHero) >= AkaliMenu.Combo.ComboEnergyManager:Value() then
 			if AkaliMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 600) then
@@ -148,7 +155,7 @@ OnTick(function ()
 		end	
 	end
 	
-	if Mix:Mode() == "LaneClear" then
+	if Mode() == "LaneClear" then
 	
 		for _,closeminion in pairs(minionManager.objects) do
 			if GetCurrentMana(myHero) >= AkaliMenu.LaneClear.EnergyManager:Value() then
@@ -165,7 +172,7 @@ OnTick(function ()
 		end
 	end
 
-	if Mix:Mode() == "LastHit" then
+	if Mode() == "LastHit" then
 	
 		for _,closeminion in pairs(minionManager.objects) do
 			if GetCurrentMana(myHero) > AkaliMenu.LastHit.LHEnergyManager:Value() then
@@ -328,7 +335,7 @@ end)
 
 OnProcessSpellComplete(function(unit,spell)
 	if AkaliMenu.Combo.TH:Value() and unit.isMe and spell.name:lower():find("attack") and spell.target.isHero then
-		if Mix:Mode() == "Combo" then
+		if Mode() == "Combo" then
 			local TH = GetItemSlot(myHero,3748)
 			if TH > 0 then 
 				if Ready(TH) and GetCurrentHP(target) > CalcDamage(myHero, target, myHero.totalDamage + (GetMaxHP(myHero) / 10), ((myHero.totalDamage / 100) * 6) + (GetBonusAP(myHero) / 6)) then
