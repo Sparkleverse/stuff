@@ -81,7 +81,12 @@ DravenMenu.Draw:Boolean("DR", "Draw KS R Range", true)
 DravenMenu.Draw:Boolean("DAP", "Draw Axe Pos", true)
 DravenMenu.Draw:Boolean("DD", "Draw Damage", true)
 
-local PlobSpot = nil
+DravenMenu:SubMenu("SkinChanger", "SkinChanger")
+
+local skin= {["Draven"] = {"Classic", "Soul Reaver", "Gladiator", "PrimeTime", "PoolParty", "BeastHunter", "Draven Draven"}}
+DravenMenu.SkinChanger:DropDown('skin', myHero.charName.. " Skins", 1, skin[myHero.charName], HeroSkinChanger, true)
+DravenMenu.SkinChanger.skin.callback = function(model) HeroSkinChanger(myHero, model - 1) print(skin[myHero.charName][model] .." ".. myHero.charName .. " Loaded!") end
+
 local Axe = 0
 local target = nil
 local CatchPos = {}
