@@ -35,16 +35,16 @@ function Mode()
         return DACR:Mode()
         elseif _G.SLW_Loaded and SLW:Mode() then
         return SLW:Mode()
-		elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 0 then
-		return "Combo"
-		elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 1 then
-		return "Harass"
-		elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 2 then
-		return "LaneClear"
-		elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 3 then
-		return "LastHit"
-		else
-		return ""
+	elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 0 then
+	return "Combo"
+	elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 1 then
+	return "Harass"
+	elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 2 then
+	return "LaneClear"
+	elseif _G.GoSWalkLoaded and _G.GoSWalk.CurrentMode == 3 then
+	return "LastHit"
+	else
+	return ""
     end
 end
 
