@@ -9,6 +9,14 @@ function AutoUpdate(data)
 end
 GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalHumanizer.version", AutoUpdate)
 
+if not FileExist(COMMON_PATH.. "Analytics.lua") then
+	DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
+end
+
+require("Analytics")
+
+Analytics("Eternal Humanizer", "Toshibiotro", true)
+
 local HumanizerMenu = Menu("Humanizer", "Eternal Humanizer")
 HumanizerMenu:Boolean("Enabled", "Enabled", true)
 HumanizerMenu:Slider("MPS", "Movements Per Second", 6, 0, 30, 1)
