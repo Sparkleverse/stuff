@@ -7,7 +7,7 @@ function AutoUpdate(data)
         DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalHumanizer.lua", SCRIPT_PATH .. "EternalHumanizer.lua", function() print("Update Complete, please 2x F6!") return end)
     end
 end
-GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalHumanizer.lua", AutoUpdate)
+GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalHumanizer.version", AutoUpdate)
 
 local HumanizerMenu = Menu("Humanizer", "Eternal Humanizer")
 HumanizerMenu:Boolean("Enabled", "Enabled", true)
