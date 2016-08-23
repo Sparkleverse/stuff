@@ -16,6 +16,7 @@ AntiAACancelMenu:Boolean("EnabledM", "Enabled for Movements", true)
 AntiAACancelMenu:Boolean("Draw", "Draw Statistics", true)
 
 local WindingUp = false
+-- Thanks Inspired
 local altAttacks = { "caitlynheadshotmissile", "frostarrow", "garenslash2", "kennenmegaproc", "lucianpassiveattack", "masteryidoublestrike", "quinnwenhanced", "renektonexecute", "renektonsuperexecute", "rengarnewpassivebuffdash", "trundleq", "xenzhaothrust", "xenzhaothrust2", "xenzhaothrust3" }
 local AACancelsPrevented = 0
 
