@@ -1,10 +1,13 @@
+local NotNeeded = {"Kalista", "Graves"}
+if table.contains(NotNeeded, myHero.charName) then print(myHero.charName.."'s AA Cannot Be Cancelled") return end
+
 local ver = "0.01"
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
         print("New version found! " .. data)
         print("Downloading update, please wait...")
-        DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalAntiAACancel.lua", SCRIPT_PATH .. "EternalAntiAACancel.lua", function() print("Update Complete, please 2x F6!") return end)
+        DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalAntiAACancel.lua", SCRIPT_PATH .. "EternalAntiAACancel3.lua", function() print("Update Complete, please 2x F6!") return end)
     end
 end
 
