@@ -4,7 +4,7 @@ if table.contains(NotNeeded, myHero.charName) then print(myHero.charName.."'s AA
 local ver = "0.02"
 
 function AutoUpdate(data)
-	if GetUser() == "Toshibiotro" then return end
+    if GetUser() == "Toshibiotro" then return end
     if tonumber(data) > tonumber(ver) then
         print("New version found! " .. data)
         print("Downloading update, please wait...")
