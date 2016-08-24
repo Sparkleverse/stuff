@@ -110,7 +110,6 @@ OnProcessSpell(function(unit, spell)
 	if unit.isMe then
 		if spell.name:lower():find("attack") or altAttacks[spell.name:lower()] then
 			WindingUp = true
-			CastSpell(_Q)
 		end	
 	end
 end)
