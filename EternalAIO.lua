@@ -721,7 +721,7 @@ function Malphite:__init()
 	MalphiteMenu:SubMenu("Misc", "Misc")
 	MalphiteMenu.Misc:DropDown("AutoLevel", "AutoLevel", 1, {"Off", "QEW", "QWE", "WQE", "WEQ", "EQW", "EWQ"})
 	if Ignite ~= nil then
-		MalphiteMenu.Misc:Boolean("AutoI", "Use Auto Ignite", true)
+		MalphiteMenu.Misc:Boolean("AI", "Use Auto Ignite", true)
 	end	
 	MalphiteMenu.Misc:Boolean("AR", "Auto R on X Enemies", true)
 	MalphiteMenu.Misc:Slider("ARC", "Min Enemies to Auto R",3,1,6,1)
