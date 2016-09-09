@@ -1249,7 +1249,7 @@ function Irelia:Loops()
 		end	
 		
 		if Ignite and IreliaMenu.Misc.AI:Value() then
-			CastIgnite(enemy)
+			self:CastIgnite(enemy)
 		end	
 		
 		if IreliaMenu.KillSteal.KSQ:Value() and Ready(_Q) and ValidTarget(enemy, QRange) then
