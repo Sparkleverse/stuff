@@ -22,12 +22,16 @@ require("DamageLib")
 require("ChallengerCommon")
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
-    DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() require("Analytics") end)
+	DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function()
+	require("Analytics")	
+	Analytics("EternalAIO ", "Toshibiotro")
+	end)
 else
-require("Analytics")
+	require("Analytics")
+	Analytics("EternalAIO ", "Toshibiotro")
 end
 
-Analytics("EternalAIO ", "Toshibiotro")
+
 
 local EternalAIOSkins = {
 ["Akali"] = {"Classic", "Stinger", "Crimson", "All-Star", "Nurse", "BloodMoon", "Silverfang", "Headhunter"},
