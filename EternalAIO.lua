@@ -22,9 +22,10 @@ require("DamageLib")
 require("ChallengerCommon")
 
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
-	DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() end)
-end
+    DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function() require("Analytics") end)
+else
 require("Analytics")
+end
 
 Analytics("EternalAIO ", "Toshibiotro")
 
