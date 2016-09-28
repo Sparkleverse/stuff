@@ -77,8 +77,8 @@ local function Damage(unit)
 	if unit == nil or not unit.valid or GetBuffData(unit, "kalistaexpungemarker").Count == 0 or GetCastLevel(myHero, _E) == 0 then return 0 end
 	local c = math.min(254, GetBuffData(unit, "kalistaexpungemarker").Count)
 	local initial = 10 + (10 * GetCastLevel(myHero, _E)) + (myHero.totalDamage * 0.6)
-	local rip = (({10, 14, 19, 25, 32})[GetCastLevel(myHero, _E)]) * math.max(1, c - 1)
-	local additional = (((0.175 + (0.025 * GetCastLevel(myHero, _E))) * myHero.totalDamage) * math.max(1, c - 1))
+	local rip = (({10, 14, 19, 25, 32})[GetCastLevel(myHero, _E)]) * c - 1
+	local additional = (((0.175 + (0.025 * GetCastLevel(myHero, _E))) * myHero.totalDamage)) * c - 1
 	local total = CalcPhysicalDamage(myHero, unit, additional + initial + rip)
 	return total
 end
