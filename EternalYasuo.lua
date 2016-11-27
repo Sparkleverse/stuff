@@ -151,9 +151,6 @@ function Damage:__init()
 	["Annie"] = function(unit, amount, damageType)
 		return BuffManager:GetBuff(unit, "MoltenShield") > 0 and amount * (1 - ({0.16,0.22,0.28,0.34,0.4})[GetCastLevel(unit, _E)]) or amount
 	end,
-	["Nautilus"] = function(unit, amount, damageType)
-		return amount * (1 - (0.06 * BuffManager:GetBuff(unit, "MasteryWardenOfTheDawn")))
-	end,
 	["Braum"] = function(unit, amount, damageType)
 		return BuffManager:GetBuff(unit, "BraumShieldRaise") > 0 and amount * (1 - ({0.3, 0.325, 0.35, 0.375, 0.4})[GetCastLevel(unit, _E)]) or amount
 	end,
