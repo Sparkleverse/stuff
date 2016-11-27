@@ -236,6 +236,7 @@ function Damage:ReductionMod(unit, amount, damageType)
 		if BuffManager:GetBuff(myHero, "Exhaust") > 0 then
 			amount = amount * 0.6
 		end
+		amount = amount * (1 - (0.06 * BuffManager:GetBuff(unit, "MasteryWardenOfTheDawn")))
 	end
 	return amount
 end
