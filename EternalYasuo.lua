@@ -1,3 +1,16 @@
+
+local Version = 0.1
+
+function AutoUpdate(data)
+    if tonumber(data) > tonumber(Version) then
+        print("New version found! " .. data)
+        print("Downloading update, please wait...")
+        DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalYasuo.lua", SCRIPT_PATH .. "EternalYasuo.lua", function() print("Update Complete, please 2x F6!") return end)
+    end
+end
+
+GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalYasuo.version", AutoUpdate)
+
 class "Winding"
 
 function Winding:__init()
