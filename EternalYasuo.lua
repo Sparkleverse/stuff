@@ -820,6 +820,7 @@ end
 
 local Champs = {"Yasuo"}
 if table.contains(Champs, myHero.charName) then
+	AutoUpdate()
 	require("OpenPredict")
 	_G[myHero.charName]()
 	MinionManager()
@@ -828,5 +829,4 @@ if table.contains(Champs, myHero.charName) then
 	Damage()
 	BuffManager()
 	AutoLevel()
-	AutoUpdate()
 end
