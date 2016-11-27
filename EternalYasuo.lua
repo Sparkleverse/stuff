@@ -1,22 +1,3 @@
-class "AutoUpdate"
-
-function AutoUpdate:__init()
-	self.Ver = 0.1
-	
-	GetWebResultAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalYasuo.version", self:Update())
-	
-end
-
-function AutoUpdate:Update(data)
-	if tonumber(self.Ver) >= tonumber(data) then
-		return
-	end
-	
-	print("New Version Found!".. data)
-	print("Downloading update, please wait...")
-	DownloadFileAsync("https://raw.githubusercontent.com/Toshibiotro/stuff/master/EternalYasuo.lua", SCRIPT_PATH.. "EternalYasuo.lua", function() print("Update Completed, Please F6 x2") return end)
-end
-
 class "Winding"
 
 function Winding:__init()
@@ -820,7 +801,6 @@ end
 
 local Champs = {"Yasuo"}
 if table.contains(Champs, myHero.charName) then
-	AutoUpdate()
 	require("OpenPredict")
 	_G[myHero.charName]()
 	MinionManager()
