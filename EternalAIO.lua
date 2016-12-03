@@ -24,11 +24,11 @@ require("ChallengerCommon")
 if not FileExist(COMMON_PATH.. "Analytics.lua") then
 	DownloadFileAsync("https://raw.githubusercontent.com/LoggeL/GoS/master/Analytics.lua", COMMON_PATH .. "Analytics.lua", function()
 	require("Analytics")	
-	Analytics("EternalAIO ", "Toshibiotro")
+	Analytics("EternalAIO", "Toshibiotro")
 	end)
 else
 	require("Analytics")
-	Analytics("EternalAIO ", "Toshibiotro")
+	Analytics("EternalAIO", "Toshibiotro")
 end
 
 
